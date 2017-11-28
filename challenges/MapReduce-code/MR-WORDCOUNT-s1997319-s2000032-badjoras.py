@@ -17,9 +17,7 @@ def mapper(key, value):
 def reducer(key, list_of_values):
     mr.emit((key, sum(list_of_values)))
 
-# ____________________________________________________________________________
-# This code remains unmodified in all programs, except for the input file name.
-
+    
 if __name__ == '__main__':
     data = open("book_pages.json")
     mr = MapReduce.MapReduce()
