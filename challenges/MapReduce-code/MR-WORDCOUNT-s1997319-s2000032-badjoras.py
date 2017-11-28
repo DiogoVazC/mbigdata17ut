@@ -15,8 +15,6 @@ def mapper(key, value):
         mr.emit_intermediate(key, acc[key])
 
 def reducer(key, list_of_values):
-    print key
-    print list_of_values
     mr.emit((key, sum(list_of_values)))
 
 # ____________________________________________________________________________
