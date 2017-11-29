@@ -3,7 +3,6 @@ s1997319 - João David Gonçalves Baião
 s2000032 - Diogo Antunes Vaz de Carvalho
 '''
 import MapReduce
-import re
 
 def mapper(key, value): 
 	text = value.get("text");
