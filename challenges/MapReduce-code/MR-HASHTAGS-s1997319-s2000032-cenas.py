@@ -1,5 +1,5 @@
 '''
-s1997319 - João David Gonçalves Baião
+s1997319 - Joao David Goncalves Baiao
 s2000032 - Diogo Antunes Vaz de Carvalho
 '''
 import MapReduce
