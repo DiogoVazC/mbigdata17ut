@@ -13,6 +13,7 @@ def mapper(key, value):
     one can consider each batch as one equally-sized sublist to be sorted in the mapper
     '''
     value.sort()
+    # Same key for each batch so the reducer can have the whole data at once
     mr.emit_intermediate(0, value)
 
 def reducer(key, list_of_values):
