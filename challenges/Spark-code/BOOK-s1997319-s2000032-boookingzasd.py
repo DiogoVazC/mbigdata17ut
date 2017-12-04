@@ -22,8 +22,6 @@ df = sqlc.read.json(filename)
 books = df.select("related") \
 	.filter("related.also_bought is not NULL")
 
-books.printSchema()
-
 frequent = books \
 	.flatMap(lambda contents: [(x, 1) for x in contents.related.also_bought]) \
 	.reduceByKey(lambda a, b: a+b) \
