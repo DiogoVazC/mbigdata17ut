@@ -8,7 +8,7 @@ This computes the most frequent 40 tweeters across the
 tweets in the HDFS file /data/doina/twitterNL/201612/20161231-23.out.gz
 
 To execute on a Farm machine:
-time spark-submit USERS-s1997319-s2000032-tweets.py 2> /dev/null
+time spark-submit USERS-s1997319-s2000032-usserrsteewtsds.py 2> /dev/null
 '''
 
 from pyspark import SparkContext
