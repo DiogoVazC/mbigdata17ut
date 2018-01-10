@@ -1,7 +1,7 @@
 import MapReduce
 
-""" This computes, distributedly, the inverted index of a number of text pages stored 
-    in a single file. The output shows, for all words in all texts, 
+""" This computes, distributedly, the inverted index of a number of text pages stored
+    in a single file. The output shows, for all words in all texts,
     which titles you can find that word in.
 
     The input file book_pages.json stores one pair:
@@ -10,11 +10,11 @@ import MapReduce
     A word is defined simply as any non-white-space contiguous string.
 
     In the output, any given title should appear only once per word:
-    ["was", ["austen-emma.txt", "bible-kjv.txt", "melville-moby_dick.txt"]], 
+    ["was", ["austen-emma.txt", "bible-kjv.txt", "melville-moby_dick.txt"]],
     ["water", ["blake-poems.txt"]], etc.
 """
 
-def mapper(key, value): 
+def mapper(key, value):
     # without a combiner
     words = value.split()
     for w in words:
