@@ -21,11 +21,11 @@ apple = products.filter(products.title.rlike('(?i).*apple.*'))
 
 apple.printSchema()
 
-"""Uncomment for farm"""
-"""
-exampe = apple.collect()
+"""Farm"""
+example = apple.take(100)
 print example
 
-"""
 """Cluster"""
+"""
 apple.rdd.saveAsTextFile("/user/s1997319/project/data/")
+"""
