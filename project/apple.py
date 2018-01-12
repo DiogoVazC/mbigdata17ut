@@ -12,20 +12,39 @@ hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
+reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
 sc = SparkContext(appName="Amazon Products")
 sqlc = SQLContext(sc)
 df = sqlc.read.json(filename)
 
-products = df.select("title", "asin")
-apple = products.filter(products.title.rlike('(?i).*apple.*'))
+"""Farm"""
+"""
+products = df.select("asin", "title", "price")
+apple = products.filter(products.title.rlike('(?i).*apple.*')) 	\
+	.filter(products.price > 100)
+
+price = df.select("asin", "price")
+price = price.filter(price.price > 500)
+
+apple50 = apple.join(price, apple.asin == price.asin)
+
+price.printSchema()
+apple50.printSchema()
 
 apple.printSchema()
-
-"""Farm"""
-example = apple.take(100)
+example = apple.take(50)
 print example
+"""
 
 """Cluster"""
-"""
-apple.rdd.saveAsTextFile("/user/s1997319/project/data/")
-"""
+products = df.select("asin", "title", "price")
+apple = products.filter(products.title.rlike('(?i).*apple.*')) 	\
+	.filter(products.price > 100)
+
+"""apple.rdd.saveAsTextFile("/user/s1997319/project/data/")"""
+
+df2 = sqlc.read.json(reviewsfile)
+reviews = df2.select("asin", "overall", "summary", "reviewTime")
+reviews = reviews.join(apple, apple.asin == reviews.asin)
+
+reviews.rdd.saveAsTextFile("/user/s1997319/project/datajoin/")
