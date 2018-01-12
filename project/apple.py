@@ -44,7 +44,10 @@ apple = products.filter(products.title.rlike('(?i).*apple.*')) 	\
 """apple.rdd.saveAsTextFile("/user/s1997319/project/data/")"""
 
 df2 = sqlc.read.json(reviewsfile)
-reviews = df2.select("asin", "overall", "summary", "reviewTime")
+reviews = df2.select("asin", "overall", "summary", "unixReviewTime", "reviewTime")
 reviews = reviews.join(apple, apple.asin == reviews.asin)
+"""reviews.rdd.flatMap(lambda (file, contents): contents.lower().split())"""
 
-reviews.rdd.saveAsTextFile("/user/s1997319/project/datajoin/")
+""".sortBy(lambda record: record.reviewTime, ascending=True)"""
+
+reviews.rdd.saveAsTextFile("/user/s1997319/project/data/teste")
