@@ -41,10 +41,10 @@ products = df.select("asin", "title", "price")
 apple = products.filter(products.title.rlike('(?i).*apple.*')) 	\
 	.filter(products.price > 100)
 
-apple.rdd.saveAsTextFile("/user/s1997319/project/data/collections")
+"""apple.rdd.saveAsTextFile("/user/s1997319/project/data/")"""
 
 df2 = sqlc.read.json(reviewsfile)
 reviews = df2.select("asin", "overall", "summary", "reviewTime")
 reviews = reviews.join(apple, apple.asin == reviews.asin)
 
-reviews.rdd.saveAsTextFile("/user/s1997319/project/data/collections")
+reviews.rdd.saveAsTextFile("/user/s1997319/project/datajoin/")
