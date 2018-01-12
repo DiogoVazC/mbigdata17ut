@@ -1,14 +1,17 @@
 """
-This computes the asins of products containing a certain word in title across the 
+This computes the asins of products containing a certain word in title across the
 amazon products in the HDFS file /data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz
 
 To execute on a Farm machine:
-time spark-submit apple.py 2> /dev/null
+time spark-submit apple.py [user] [folder] 2> /dev/null
 Cluster:
-spark-submit --master yarn --deploy-mode cluster apple.py
+spark-submit --master yarn --deploy-mode cluster apple.py [user] [folder] 
 hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
 """
 
+import sys
+user = sys.argv[1]
+folder = sys.argv[2]
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
@@ -50,4 +53,4 @@ reviews = reviews.join(apple, apple.asin == reviews.asin)
 
 """.sortBy(lambda record: record.reviewTime, ascending=True)"""
 
-reviews.rdd.saveAsTextFile("/user/s1997319/project/data/teste")
+reviews.rdd.saveAsTextFile("/user/" + user + "/project/data/" + folder)
