@@ -1,8 +1,8 @@
 """
 To execute on a Farm machine:
-time spark-submit apple_stock_farm.py 2> /dev/null
+time spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 appleStock_farm.py 2> /dev/null
 Cluster:
-spark-submit --master yarn --deploy-mode cluster apple_stock_farm.py
+spark-submit --master yarn --deploy-mode cluster appleStock_farm.py
 hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
 """
 
