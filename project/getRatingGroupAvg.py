@@ -1,12 +1,10 @@
 """
-This computes the asins of products containing a certain word in title across the
-amazon products in the HDFS file /data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz
-
+This computes the average of Rating per day in a given time for a given company.
 To execute on a Farm machine:
 time spark-submit apple.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
 Cluster:
-spark-submit --master yarn --deploy-mode cluster apple.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime]
-hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
+spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime]
+hdfs dfs -cat /user/s*/project/data/[folder]
 """
 
 import sys
