@@ -22,7 +22,7 @@ beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013
 endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013 
 
 """Initialize Spark"""
-sc = SparkContext(appName="Amazon Products")
+sc = SparkContext(appName="Amazon Rating Average")
 sqlc = SQLContext(sc)
 
 """Read Files"""
