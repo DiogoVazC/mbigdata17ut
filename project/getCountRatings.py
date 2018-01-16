@@ -4,37 +4,39 @@ spark-submit --master yarn --deploy-mode cluster apple.py [user] [folder] [compa
 hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
 """
 
-import sys
-user = sys.argv[1]
-folder = sys.argv[2]
-company = sys.argv[3]
-beginTime = sys.argv[4] if (len(sys.argv) > 5) else 1356998400
-endTime = sys.argv[5] if (len(sys.argv) > 5) else 1370044800
-
+"""Import packages"""
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import approxCountDistinct, countDistinct, col, avg
+from pyspark.sql.functions import col, avg, to_date, from_unixtime
+import dataframeOperations as operation
+import printResults as printR
+import consts
 
+"""Get Arguments"""
+import sys
+folder = sys.argv[1]
+company = sys.argv[2]
+beginTime = sys.argv[3] if (len(sys.argv) > 4) else consts.Jan2013 
+endTime = sys.argv[4] if (len(sys.argv) > 4) else consts.Jun2013 
 
-metaFile = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
-reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
-
-
-sc = SparkContext(appName="Amazon reviews count")
+"""Initialize Spark"""
+sc = SparkContext(appName="Amazon Ratings Count")
 sqlc = SQLContext(sc)
 
-df = sqlc.read.json(metaFile)
-products = df.select("asin", "title", "price")
-meta = products.filter(products.title.rlike('(?i).*' + company + '.*')) 	\
-	.filter(products.price > 50)
+"""Read Files"""
+df = sqlc.read.json(consts.filename)
+df2 = sqlc.read.json(consts.reviewsfile)
 
-df2 = sqlc.read.json(reviewsfile)
-reviews = df2.select('asin', "unixReviewTime") \
-	.filter(df2.unixReviewTime > beginTime) \
-	.filter(df2.unixReviewTime < endTime)
+"""Select Data"""
+meta = operation.selectProducts(df, ["asin", "title", "price"], company, 50)
+reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], beginTime, endTime)
 
+"""Join"""
 reviews = reviews.join(meta, "asin")
 
-contagem = reviews.rdd.countApprox(1000, 0.9)
+"""Count"""
+contagem = operation.countApprox(reviews.rdd)
 
-contagem.saveAsTextFile("/user/" + user + "/project/data/" + folder)
+print contagem
+
+"""contagem.saveAsTextFile("/user/" + consts.user + "/project/data/" + folder)"""
