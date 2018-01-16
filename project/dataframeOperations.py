@@ -22,3 +22,11 @@ def averageRatingDay(dataframe):
 
 def countApprox(rdd):
 	return rdd.countApprox(1000, 0.9)
+
+def subtractRating(df, col, date):
+	prevDay = df.select("avgRating") \
+		.where(df.DateFormat == date_add(date, 1)) \
+		.collect()
+	result = col - prevDay
+	print result
+	return result

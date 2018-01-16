@@ -10,7 +10,8 @@ hdfs dfs -cat /user/s*/project/data/[folder]
 """Import packages"""
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, UserDefinedFunction
+import pyspark.sql.types as T
 import dataframeOperations as operation
 import printResults as printR
 import consts
@@ -48,3 +49,9 @@ printR.printFarmExample(rating, 1)
 """Collect"""
 printR.printFarm(rating)
 
+"""Calculations"""
+name = 'avgRating'
+my_udf = F.UserDefinedFunction(operation.subtractRating, T.FloatType())
+new_df = old_df.select(*[my_udf(column).alias("Date") if column == name else column for column in old_df.columns])
+
+printR.printFarm(rating)
