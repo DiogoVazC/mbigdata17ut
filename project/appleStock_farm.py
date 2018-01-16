@@ -2,11 +2,13 @@
 To execute on a Farm machine:
 time spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 appleStock_farm.py 2> /dev/null
 """
+import sys
+user = sys.argv[1]
 
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 
-stockFile = "file:///home/s2000032/aapl-apple-historicalStock.csv"
+stockFile = "file:///home/" + user + "/aapl-apple-historicalStock.csv"
 sc = SparkContext("local", "Stock")
 
 sqlc = SQLContext(sc)
@@ -17,5 +19,9 @@ stockData = sqlc.read.format('com.databricks.spark.csv') \
     .option("encoding", "UTF-8") \
     .load(stockFile)
 
-stockData.printSchema()
-print stockData.take(10)
+stockDataYear = stockData.select("date", "close") \
+	.filter(stockData.date >= '2013/01/01') \
+    .filter(stockData.date < '2014/12/32')
+
+stockDataYear.printSchema()
+print stockDataYear.collect()
