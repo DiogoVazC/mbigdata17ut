@@ -26,7 +26,7 @@ sqlc = SQLContext(sc)
 df = sqlc.read.json(metaFile)
 products = df.select("asin", "title", "price")
 meta = products.filter(products.title.rlike('(?i).*' + company + '.*')) 	\
-	.filter(products.price > 100)
+	.filter(products.price > 50)
 
 df2 = sqlc.read.json(reviewsfile)
 reviews = df2.select('asin', "overall", "summary", "unixReviewTime", "reviewTime") \
