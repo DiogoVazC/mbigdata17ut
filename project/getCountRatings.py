@@ -20,7 +20,7 @@ metaFile = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
 reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
 
 
-sc = SparkContext("local", "AmazonReviews")
+sc = SparkContext(appName="Amazon reviews count")
 sqlc = SQLContext(sc)
 
 df = sqlc.read.json(metaFile)
@@ -35,6 +35,6 @@ reviews = df2.select('asin', "unixReviewTime") \
 
 reviews = reviews.join(meta, "asin")
 
-contagem = reviews.countApprox()
+contagem = reviews.rdd.countApprox(1000, 0.9)
 
 contagem.saveAsTextFile("/user/" + user + "/project/data/" + folder)

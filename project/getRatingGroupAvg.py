@@ -17,6 +17,7 @@ endTime = sys.argv[5]
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import col, avg
+import selects as sel
 filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
 reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
 sc = SparkContext(appName="Amazon Products")
@@ -24,9 +25,8 @@ sqlc = SQLContext(sc)
 df = sqlc.read.json(filename)
 
 """Cluster"""
-products = df.select("asin", "title", "price")
-meta = products.filter(products.title.rlike('(?i).*' + company + '.*')) 	\
-	.filter(products.price > 100)
+meta = sel.selectProducts(df, ["asin", "title", "price"], company, 50)
+
 
 df2 = sqlc.read.json(reviewsfile)
 reviews = df2.select('asin', "overall", "summary", "unixReviewTime", "reviewTime") \

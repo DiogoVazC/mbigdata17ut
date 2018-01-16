@@ -17,6 +17,7 @@ endTime = sys.argv[4] if (len(sys.argv) > 4) else 1370044800
 
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
+import selects as sel
 from pyspark.sql.functions import col, avg, to_date, from_unixtime
 filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
 reviewsfile = 'file:///home/' + user + '/reviews_Electronics.json.gz'
@@ -24,10 +25,7 @@ sc = SparkContext(appName="Amazon Products")
 sqlc = SQLContext(sc)
 df = sqlc.read.json(filename)
 
-"""Cluster"""
-products = df.select("asin", "title", "price")
-meta = products.filter(products.title.rlike('(?i).*' + company + '.*')) 	\
-	.filter(products.price > 100)
+meta = sel.selectProducts(df, ["asin", "title", "price"], company, 50)
 
 df2 = sqlc.read.json(reviewsfile)
 reviews = df2.select('asin', "overall", "summary", "unixReviewTime", "reviewTime") \
@@ -41,8 +39,6 @@ reviews = reviews.withColumn("newDate", from_unixtime(reviews.unixReviewTime, "y
 
 example = reviews.take(1)
 print example
-
-"""print to_date(example[0].unixReviewTime, "yyyy MM dd")"""
 
 	
 reviews = reviews.join(meta, "asin") \
