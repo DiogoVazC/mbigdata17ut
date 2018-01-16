@@ -12,6 +12,7 @@ endTime = sys.argv[4] if (len(sys.argv) > 4) else 1370044800
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import approxCountDistinct, countDistinct, col, avg
+import selects as sel
 
 
 metaFile = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
@@ -22,9 +23,7 @@ sc = SparkContext("local", "AmazonReviews")
 sqlc = SQLContext(sc)
 
 df = sqlc.read.json(metaFile)
-products = df.select("asin", "title", "price")
-meta = products.filter(products.title.rlike('(?i).*' + company + '.*')) 	\
-	.filter(products.price > 50)
+meta = sel.selectProducts(df, ["asin", "title", "price"], company, 50)
 
 df2 = sqlc.read.json(reviewsfile)
 reviews = df2.select('asin', "unixReviewTime") \
