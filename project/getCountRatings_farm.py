@@ -1,4 +1,7 @@
 """
+Get Approximate count of reviews of products of a certain [companyName] 
+by joining the asin of products in the Amazon Data Set with the ones in reviews
+
 To execute on a Farm machine:
 time spark-submit getCountRatings_farm.py [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
 """

@@ -1,9 +1,10 @@
 """
 This computes the asins of products containing a certain word in title across the
 amazon products in the HDFS file /data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz
+And joins them with the reviews in the HDFS file file:///home/[user]/reviews_Electronics.json.gz
 
 To execute on a Farm machine:
-time spark-submit getReviews_farm.py [company] [*unixBeginTime] [*unixEndTime] 2> /dev/null
+time spark-submit getReviews_farm.py [user] [company] [unixBeginTime] [unixEndTime] 2> /dev/null
 """
 
 """Import packages"""

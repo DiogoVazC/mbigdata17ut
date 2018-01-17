@@ -3,7 +3,7 @@ This computes the asins of products containing a certain word in title across th
 amazon products in the HDFS file /data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz
 And joins them with the reviews in the HDFS file /data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz
 Cluster:
-spark-submit --master yarn --deploy-mode cluster getReviews_cluster.py [user] [folder] [company] [*unixBeginTime] [*unixEndTime]
+spark-submit --master yarn --deploy-mode cluster getReviews_cluster.py [user] [folder] [company] [unixBeginTime] [unixEndTime]
 hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
 """
 

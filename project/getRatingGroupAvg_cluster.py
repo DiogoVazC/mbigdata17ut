@@ -1,5 +1,6 @@
 """
 This computes the average of Rating per day in a given time for a given company.
+
 Cluster:
 spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg_cluster.py [user] [folder] [company] [unixBeginTime] [unixEndTime]
 hdfs dfs -cat /user/s*/project/data/[folder]
