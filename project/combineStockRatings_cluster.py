@@ -1,7 +1,7 @@
 """
 This computes the average of Rating per day in a given time for a given company.
-To execute on a Cluster machine:
-spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 --master yarn --deploy-mode cluster combineStockRatings_cluster.py [user] [company] [folder] [unixBeginTime] [unixEndTime] 2> /dev/null
+To execute on Cluster:
+spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 --master yarn --deploy-mode cluster combineStockRatings_cluster.py [user] [folder] [company] [unixBeginTime] [unixEndTime]
 """
 
 """Import packages"""
@@ -23,7 +23,7 @@ beginTime = sys.argv[4] if (len(sys.argv) > 5) else consts.Jan2013
 endTime = sys.argv[5] if (len(sys.argv) > 5) else consts.Jun2013
 
 """Initialize Spark"""
-sc = SparkContext(appName="Combine Stock Ratings")
+sc = SparkContext(appName="Combine Amazon ratings with stock values")
 sqlc = SQLContext(sc)
 
 """Read stock file"""
@@ -52,8 +52,6 @@ reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], be
 """Join Reviews asin"""
 reviews = reviews.join(meta, "asin")
 rating = operation.averageRatingDay(reviews)
-
-printR.printFarmExample(rating, 10)
 
 """Join ratings with stock"""
 combine = rating.join(stockDataYear, "date")
