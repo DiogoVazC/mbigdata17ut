@@ -19,7 +19,7 @@ user = sys.argv[1]
 folder = sys.argv[2]
 company = sys.argv[3]
 beginTime = sys.argv[4] if (len(sys.argv) > 5) else consts.Jan2013
-endTime = sys.argv[5] if (len(sys.argv) > 5 else consts.Jun2013
+endTime = sys.argv[5] if (len(sys.argv) > 5) else consts.Jun2013
 
 """Initialize Spark"""
 sc = SparkContext(appName="Amazon Ratings Count")
