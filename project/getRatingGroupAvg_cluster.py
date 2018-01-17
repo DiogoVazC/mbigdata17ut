@@ -1,7 +1,8 @@
 """
+This computes the average of Rating per day in a given time for a given company.
 Cluster:
-spark-submit --master yarn --deploy-mode cluster apple.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime]
-hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
+spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg_cluster.py [user] [folder] [company] [unixBeginTime] [unixEndTime]
+hdfs dfs -cat /user/s*/project/data/[folder]
 """
 
 """Import packages"""
@@ -14,10 +15,11 @@ import consts
 
 """Get Arguments"""
 import sys
-folder = sys.argv[1]
-company = sys.argv[2]
-beginTime = sys.argv[3] if (len(sys.argv) > 4) else consts.Jan2013 
-endTime = sys.argv[4] if (len(sys.argv) > 4) else consts.Jun2013 
+user = sys.argv[1]
+folder = sys.argv[2]
+company = sys.argv[3]
+beginTime = sys.argv[4] if (len(sys.argv) > 5) else consts.Jan2013
+endTime = sys.argv[5] if (len(sys.argv) > 5 else consts.Jun2013
 
 """Initialize Spark"""
 sc = SparkContext(appName="Amazon Ratings Count")
@@ -33,10 +35,7 @@ reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], beginTime, en
 
 """Join"""
 reviews = reviews.join(meta, "asin")
+rating = operation.averageRatingDay(reviews)
 
-"""Count"""
-contagem = operation.countApprox(reviews.rdd)
-
-print contagem
-
-"""contagem.saveAsTextFile("/user/" + consts.user + "/project/data/" + folder)"""
+"""Print"""
+printR.printClusterRDD(rating.rdd, user, folder)

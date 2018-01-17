@@ -3,7 +3,7 @@ This computes the asins of products containing a certain word in title across th
 amazon products in the HDFS file /data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz
 
 To execute on a Farm machine:
-time spark-submit getReviews_farm.py [user] [company] 2> /dev/null
+time spark-submit getReviews_farm.py [company] [*unixBeginTime] [*unixEndTime] 2> /dev/null
 """
 
 """Import packages"""
@@ -17,11 +17,11 @@ import consts
 """Get Arguments"""
 import sys
 company = sys.argv[1]
-beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013 
-endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013 
+beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013
+endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013
 
 """Initialize Spark"""
-sc = SparkContext(appName="Amazon Reviews")
+sc = SparkContext("local", "AmazonReviews")
 sqlc = SQLContext(sc)
 
 """Read Files"""

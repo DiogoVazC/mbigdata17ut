@@ -4,3 +4,4 @@ reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
 reviewsfilefarm = 'file:///home/' + user + '/reviews_Electronics.json.gz'
 Jan2013 = 1356998400
 Jun2013 = 1370044800
+Dez2014 = 1420070399

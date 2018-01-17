@@ -1,10 +1,7 @@
 """
 This computes the average of Rating per day in a given time for a given company.
 To execute on a Farm machine:
-time spark-submit apple.py [folder] [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
-Cluster:
-spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg.py [folder] [companyName] [unixBeginTime] [unixEndTime]
-hdfs dfs -cat /user/s*/project/data/[folder]
+time spark-submit getRatingGroupAvg_farm.py [company] [unixBeginTime] [unixEndTime] 2> /dev/null
 """
 
 """Import packages"""
@@ -18,11 +15,11 @@ import consts
 """Get Arguments"""
 import sys
 company = sys.argv[1]
-beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013 
-endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013 
+beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013
+endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013
 
 """Initialize Spark"""
-sc = SparkContext(appName="Amazon Rating Average")
+sc = SparkContext("local", "AmazonRatingAvg")
 sqlc = SQLContext(sc)
 
 """Read Files"""
@@ -47,4 +44,3 @@ printR.printFarmExample(rating, 1)
 
 """Collect"""
 printR.printFarm(rating)
-

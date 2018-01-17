@@ -21,4 +21,4 @@ def averageRatingDay(dataframe):
 	return rating
 
 def countApprox(rdd):
-	return rdd.countApprox(1000, 0.9)
+	return rdd.countApprox(1500, 0.95)

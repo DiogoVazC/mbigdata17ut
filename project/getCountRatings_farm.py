@@ -1,6 +1,6 @@
 """
 To execute on a Farm machine:
-time spark-submit getCountRatings_farm.py [user] [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
+time spark-submit getCountRatings_farm.py [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
 """
 
 """Import packages"""
@@ -14,11 +14,11 @@ import consts
 """Get Arguments"""
 import sys
 company = sys.argv[1]
-beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013 
-endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013 
+beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013
+endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Dez2014
 
 """Initialize Spark"""
-sc = SparkContext(appName="Amazon Count Reviews")
+sc = SparkContext("local", "AmazonCountReviews")
 sqlc = SQLContext(sc)
 
 """Read Files"""
