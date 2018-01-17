@@ -51,7 +51,7 @@ reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], be
 
 """Join Reviews asin"""
 reviews = reviews.join(meta, "asin")
-rating = operation.averageRatingDay(reviews)
+rating = operation.averageRating(reviews, 'day')
 
 """Join ratings with stock"""
 combine = rating.join(stockDataYear, "date")

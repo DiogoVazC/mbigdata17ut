@@ -50,7 +50,7 @@ reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], be
 
 """Join Reviews asin"""
 reviews = reviews.join(meta, "asin")
-rating = operation.averageRatingDay(reviews)
+rating = operation.averageRating(reviews, 'day')
 
 printR.printFarmExample(rating, 10)
 
