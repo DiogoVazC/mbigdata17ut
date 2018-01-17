@@ -21,7 +21,12 @@ def selectStock(dataframe, col, beginTime, endTime):
     	.filter(dataframe.date <= endTime)
 	return stock
 
-def averageRatingDay(dataframe):
+def averageRating(dataframe, timeframe):
+	if timeframe == 'month':
+		dataframe = dataframe.withColumn("date", dataframe['date'].substr(1,7))
+	elif timeframe == '10days':
+		dataframe = dataframe.withColumn("date", dataframe['date'].substr(1,9))
+
 	rating = dataframe.groupBy(dataframe.date) \
 		.agg(avg(col("overall")).alias('avgRating')) \
 		.orderBy("date", ascending=True)

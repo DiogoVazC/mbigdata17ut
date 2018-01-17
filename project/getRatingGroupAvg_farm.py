@@ -2,7 +2,7 @@
 This computes the average of Rating per day in a given time for a given company.
 To execute on a Farm machine:
 
-time spark-submit getRatingGroupAvg_farm.py [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
+time spark-submit getRatingGroupAvg_farm.py [companyName] [day/10days/month] [unixBeginTime] [unixEndTime] 2> /dev/null
 
 """
 
@@ -19,8 +19,9 @@ import consts
 """Get Arguments"""
 import sys
 company = sys.argv[1]
-beginTime = sys.argv[2] if (len(sys.argv) > 3) else consts.Jan2013
-endTime = sys.argv[3] if (len(sys.argv) > 3) else consts.Jun2013
+timeframe = sys.argv[2]
+beginTime = sys.argv[3] if (len(sys.argv) > 4) else consts.Jan2013
+endTime = sys.argv[4] if (len(sys.argv) > 4) else consts.Jun2013
 
 """Initialize Spark"""
 sc = SparkContext("local", "AmazonRatingAvg")
@@ -36,7 +37,7 @@ reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], be
 
 """Join"""
 reviews = reviews.join(meta, "asin")
-rating = operation.averageRatingDay(reviews)
+rating = operation.averageRating(reviews, timeframe)
 
 """Collect"""
 printR.printFarm(rating)

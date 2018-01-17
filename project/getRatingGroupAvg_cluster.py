@@ -2,7 +2,7 @@
 This computes the average of Rating per day in a given time for a given company.
 
 Cluster:
-spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg_cluster.py [user] [folder] [company] [unixBeginTime] [unixEndTime]
+spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg_cluster.py [user] [folder] [company] ['day'/'10days'/'month'] [unixBeginTime] [unixEndTime]
 hdfs dfs -cat /user/s*/project/data/[folder]
 """
 
@@ -19,8 +19,9 @@ import sys
 user = sys.argv[1]
 folder = sys.argv[2]
 company = sys.argv[3]
-beginTime = sys.argv[4] if (len(sys.argv) > 5) else consts.Jan2013
-endTime = sys.argv[5] if (len(sys.argv) > 5) else consts.Jun2013
+timeframe = sys.argv[4]
+beginTime = sys.argv[5] if (len(sys.argv) > 6) else consts.Jan2013
+endTime = sys.argv[6] if (len(sys.argv) > 6) else consts.Jun2013
 
 """Initialize Spark"""
 sc = SparkContext(appName="Amazon Ratings Count")
@@ -36,7 +37,7 @@ reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], beginTime, en
 
 """Join"""
 reviews = reviews.join(meta, "asin")
-rating = operation.averageRatingDay(reviews)
+rating = operation.averageRating(reviews, timeframe)
 
 """Print"""
 printR.printClusterRDD(rating.rdd, user, folder)
