@@ -1,6 +1,9 @@
 """
+Get Approximate count of reviews of products of a certain [companyName] 
+by joining the asin of products in the Amazon Data Set with the ones in reviews
+
 Cluster:
-spark-submit --master yarn --deploy-mode cluster apple.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime]
+spark-submit --master yarn --deploy-mode cluster getCountRaings.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime]
 hdfs dfs -cat /user/s*/project/data/part-00000 | head -5
 """
 

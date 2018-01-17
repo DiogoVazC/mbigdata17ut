@@ -1,9 +1,9 @@
 """
 This computes the average of Rating per day in a given time for a given company.
 To execute on a Farm machine:
-time spark-submit apple.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
+time spark-submit apple.py [companyName] [unixBeginTime] [unixEndTime] 2> /dev/null
 Cluster:
-spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg.py [user] [folder] [companyName] [unixBeginTime] [unixEndTime]
+spark-submit --master yarn --deploy-mode cluster getRatingGroupAvg.py [folder] [companyName] [unixBeginTime] [unixEndTime]
 hdfs dfs -cat /user/s*/project/data/[folder]
 """
 

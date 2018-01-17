@@ -1,6 +1,6 @@
 """
 To execute on a Farm machine:
-time spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 appleStock_farm.py 2> /dev/null
+time spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 appleStock_farm.py [user] 2> /dev/null
 """
 import sys
 user = sys.argv[1]
