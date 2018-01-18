@@ -36,20 +36,12 @@ products = df.select("asin", "title", "price")
 meta = products.filter(products.title.rlike('(?i).*' + company + '.*')) 	\
 	.filter(products.price > 100)
 
-"""apple.rdd.saveAsTextFile("/user/s1997319/project/data/")"""
-
 reviews = df2.select('asin', "overall", "summary", "unixReviewTime", "reviewTime") \
 	.filter(df2.unixReviewTime > beginTime) \
 	.filter(df2.unixReviewTime < endTime)
 
 """Join"""
 reviews = reviews.join(meta, "asin")
-
-"""reviews = reviews.groupBy(reviews.asin).avg('overall')"""
-
-"""reviews.rdd.flatMap(lambda (file, contents): contents.lower().split())"""
-
-""".sortBy(lambda record: record.reviewTime, ascending=True)"""
 
 """Print"""
 printR.printClusterRDD(reviews.rdd, user, folder)
