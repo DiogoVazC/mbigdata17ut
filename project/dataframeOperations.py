@@ -38,3 +38,15 @@ def countApprox(rdd):
 def formatDate(date):
 	d = datetime.datetime.strptime(date, '%Y/%m/%d')
 	return datetime.date.strftime(d, "%Y-%m-%d")
+
+def readStockValue(filename, sqlc, beginTime, endTime):
+	stockData = sqlc.read.format('com.databricks.spark.csv') \
+	    .options(header='true') \
+	    .option("inferschema", 'true') \
+	    .option("encoding", "UTF-8") \
+	    .load(filename)
+
+	a = datetime.datetime.fromtimestamp(beginTime).strftime('%Y/%m/%d')
+	b = datetime.datetime.fromtimestamp(endTime).strftime('%Y/%m/%d')
+	stockDataYear = selectStock(stockData, ["date", "close"], a, b)
+	return stockDataYear
