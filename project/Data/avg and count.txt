@@ -1,5 +1,6 @@
 Apple Jan-Jun2013 (farm):
 
+Row(avg(overall)=4.277655801384901)
 RatingAvg = 4.277655801384901
 
 real    14m28.743s
@@ -7,8 +8,8 @@ user    7m26.920s
 sys     0m5.509s
 
 
-
 countRatings = 11841
+Same in cluster
 
 real    9m26.836s
 user    5m47.025s

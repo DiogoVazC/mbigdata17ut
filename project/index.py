@@ -8,7 +8,7 @@ Everytime a function is added, the index should be updated with the correct argu
 """Import packages"""
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
 import dataframeOperations as operation
 import printResults as printR
 import consts
@@ -39,7 +39,7 @@ def getReviews(sqlc):
 	reviews = reviews.join(meta, "asin")
 
 	"""Print"""
-	result = reviews.take(20)
+	result = reviews.rdd.sample(False, 20)
 	printR.printClusterRDD(result, consts.user, consts.folder)
 
 """
@@ -124,7 +124,7 @@ def countRatings(sqlc):
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
 
-	printR.printClusterRDD(contagem.rdd, consts.user, consts.folder)
+	print contagem
 
 """
 Combine Stock Value for a company in stock market and 
