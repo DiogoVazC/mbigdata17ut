@@ -62,24 +62,19 @@ return/print/save:
 """
 def getRatingGroupAvg(sqlc):	
 	"""Read Files"""
-	print consts.filename
 	df = sqlc.read.json(consts.filename)
 	df2 = sqlc.read.json(consts.reviewsfilefarm)
 
-	print consts.company
 	"""Select Data"""
 	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 50)
 	reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], consts.beginTime, consts.endTime)
 
-	print "join"
 	"""Join"""
 	reviews = reviews.join(meta, "asin")
 	rating = operation.averageRating(reviews, consts.timeframe)
 
 	"""Print"""
-	print "printfarm"
-	printR.printFarmExample(rating, 3)
-	print "return"
+	printR.printFarmExample(rating)
 
 """
 Same as getRatingGroupAvg, but avg for the complete time (all grouped in one row)

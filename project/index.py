@@ -12,6 +12,7 @@ from pyspark.sql.functions import col, avg, to_date, from_unixtime
 import dataframeOperations as operation
 import printResults as printR
 import consts
+import datetime
 
 """
 Get Reviews examples of products of a certain company for a given time in Amazon.com
@@ -51,7 +52,7 @@ return/print/save:
 def getStock(sqlc):
 	stockFile = "file:///home/" + consts.user + "/aapl-apple-historicalStock.csv"
 	#.option("mode", "DROPMALFORMED") \
-	stockData = operation.readStockValue(stockFile)
+	stockData = operation.readStockValue(stockFile, sqlc, consts.beginTime, consts.endTime)
 
 	printR.printClusterRDD(stockData.rdd, consts.user, consts.folder)
 
@@ -69,7 +70,7 @@ def getRatingGroupAvg(sqlc):
 
 	"""Select Data"""
 	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 50)
-	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
+	reviews = operation.selectReviews(df2, ['asin', 'overall', "unixReviewTime"], consts.beginTime, consts.endTime)
 
 	"""Join"""
 	reviews = reviews.join(meta, "asin")
@@ -92,7 +93,7 @@ def getRatingAvg(sqlc):
 
 	"""Select Data"""
 	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 50)
-	reviews = operation.selectReviews(df2, ['asin', "overall", "summary", "unixReviewTime", "reviewTime"], consts.beginTime, consts.endTime)
+	reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime", "reviewTime"], consts.beginTime, consts.endTime)
 
 	"""Join"""
 	reviews = reviews.join(meta, "asin")
@@ -150,7 +151,6 @@ def combine(sqlc):
 	"""Change Date Format from Y/M/d to Y-M-d"""
 	my_udf = udf(operation.formatDate)
 	stockDataYear = stockDataYear.withColumn("date", my_udf(stockDataYear.date))
-	stockDataYear.printSchema()
 
 	"""Read Meta and Reviews Files"""
 	df = sqlc.read.json(consts.filename)
@@ -164,6 +164,7 @@ def combine(sqlc):
 
 	"""Join ratings with stock"""
 	combine = rating.join(stockDataYear, "date")
+	combine = combine.orderBy("date", ascending=True)
 
 	printR.printClusterRDD(combine.rdd, consts.user, consts.folder)
 

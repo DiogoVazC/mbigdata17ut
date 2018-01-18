@@ -29,5 +29,4 @@ consts.timeframe = sys.argv[6] if (len(sys.argv) > 6) else 'day'
 sc = SparkContext("local", "Stock Value")
 sqlc = SQLContext(sc)
 
-print "index_farm_call"
 result = index_farm.index[fc](sqlc)

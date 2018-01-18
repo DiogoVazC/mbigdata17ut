@@ -1,6 +1,9 @@
 """
 This is the main file for cluster.
-spark-submit --master yarn --deploy-mode cluster cluster.py [function] [user] [folder] [company] [unixBeginTime] [unixEndTime] ['day'/'10days'/'month'] 
+spark-submit --master yarn --deploy-mode cluster cluster.py [function] [user] [folder] [company] [unixBeginTime] [unixEndTime]
+
+if stock:
+spark-submit --packages com.databricks:spark-csv_2.11:1.5.0 --master yarn --deploy-mode cluster cluster.py [function] [user] [folder] [company] [unixBeginTime] [unixEndTime]
 """
 
 """Import packages"""
