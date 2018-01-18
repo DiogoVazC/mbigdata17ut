@@ -78,7 +78,7 @@ def getRatingGroupAvg(sqlc):
 
 	"""Print"""
 	print "printfarm"
-	printR.printFarm(rating)
+	printR.printFarmExample(rating, 3)
 	print "return"
 
 """
@@ -95,7 +95,7 @@ def getRatingAvg(sqlc):
 
 	"""Select Data"""
 	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 50)
-	reviews = operation.selectReviews(df2, ['asin', "overall", "summary", "unixReviewTime", "reviewTime"], consts.beginTime, consts.endTime)
+	reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime", "reviewTime"], consts.beginTime, consts.endTime)
 
 	"""Join"""
 	reviews = reviews.join(meta, "asin")
@@ -165,6 +165,7 @@ def combine(sqlc):
 
 	"""Join ratings with stock"""
 	combine = rating.join(stockDataYear, "date")
+	combine = combine.orderBy("date", ascending=True)
 
 	printR.printFarm(combine)
 

@@ -1,0 +1,16 @@
+[
+(asin=u'B002JSZ4HK', overall=1.0, summary=u'Junk', unixReviewTime=1357603200, reviewTime=u'01 8, 2013', title=u'Apple Time Capsule 2TB MB996LL/A [OLD VERSION]', price=277.99), 
+(asin=u'B002L6HDQA', overall=5.0, summary=u'This was a really good buy', unixReviewTime=1357603200, reviewTime=u'01 8, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B002L6HDQA', overall=5.0, summary=u'I was looking for an older iPod Nano', unixReviewTime=1368057600, reviewTime=u'05 9, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B002L6HDQA', overall=5.0, summary=u'Gift', unixReviewTime=1359072000, reviewTime=u'01 25, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B002L6HDQA', overall=5.0, summary=u'IPod nano 5th generation', unixReviewTime=1361145600, reviewTime=u'02 18, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B002L6HDQA', overall=4.0, summary=u'Okay at first...', unixReviewTime=1358208000, reviewTime=u'01 15, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B002L6HDQA', overall=4.0, summary=u'As expected', unixReviewTime=1357776000, reviewTime=u'01 10, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B002L6HDQA', overall=5.0, summary=u'Refurbished; works great!', unixReviewTime=1357862400, reviewTime=u'01 11, 2013', title=u'Apple iPod nano 8 GB Purple (5th Generation)  (Discontinued by Manufacturer)', price=149.0), 
+(asin=u'B005MQPW5U', overall=4.0, summary=u'Glad I baught it.', unixReviewTime=1362268800, reviewTime=u'03 3, 2013', title=u'Apple TV with 160GB drive - Bulk Eco Packaging (1st Generation - A1218 - Model: MB189LL A)', price=294.95), 
+(asin=u'B005MQPW5U', overall=5.0, summary=u'2 for the show', unixReviewTime=1363046400, reviewTime=u'03 12, 2013', title=u'Apple TV with 160GB drive - Bulk Eco Packaging (1st Generation - A1218 - Model: MB189LL A)', price=294.95)]
+
+
+real    13m25.957s
+user    5m33.743s
+sys     0m5.267s

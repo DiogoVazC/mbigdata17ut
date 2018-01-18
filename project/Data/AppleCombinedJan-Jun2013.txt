@@ -103,3 +103,8 @@
 (date=u'2013-01-29', avgRating=4.225806451612903, close=65.4671), 
 (date=u'2013-01-30', avgRating=4.325925925925926, close=65.2614), 
 (date=u'2013-01-31', avgRating=4.434210526315789, close=65.07)]
+
+
+real    6m39.484s
+user    6m7.683s
+sys     0m10.773s
