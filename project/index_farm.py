@@ -171,9 +171,6 @@ def combine(sqlc):
 
 	printR.printFarm(combine)
 
-	"""plt.xlabel('Order')
-	plt.ylabel('Error function value')
-	plt.plot(indexesTrain, reviews.select("overall").collect, label="Reviews Evolution")"""
 	plt.figure(1)
 	fig, ax = plt.subplots()
 	datesObjs = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
