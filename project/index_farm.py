@@ -1,14 +1,21 @@
 """
 This File is the index and functions the program can do (in cluster)
 
-At the end of the page there's an index. 
+At the end of the page there's an index.
 Everytime a function is added, the index should be updated with the correct arguments.
 """
 
 """Import packages"""
+# PySpark
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
+# Matplotlib
+import matplotlib
+matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend.
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+# Project
 import dataframeOperations as operation
 import printResults as printR
 import consts
@@ -69,7 +76,7 @@ args:
 
 return/print/save:
 """
-def getRatingGroupAvg(sqlc):	
+def getRatingGroupAvg(sqlc):
 	"""Read Files"""
 	df = sqlc.read.json(consts.filename)
 	df2 = sqlc.read.json(consts.reviewsfilefarm)
@@ -132,7 +139,7 @@ def countRatings(sqlc):
 	print contagem
 
 """
-Combine Stock Value for a company in stock market and 
+Combine Stock Value for a company in stock market and
 the avg rating given in reviews in the same day in Amazon.com
 for each day in a given time
 
@@ -183,6 +190,26 @@ def combine(sqlc):
 
 	printR.printFarm(combine)
 
+	plt.figure(1)
+	fig, ax = plt.subplots()
+	datesObjs = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
+	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
+	ax.set_ylim((min(ratings) - 0.4), 5.0)
+	dates = matplotlib.dates.date2num(datesObjs)
+	ax.plot_date(dates, ratings, 'g-')
+	fig.autofmt_xdate()
+	ax.fmt_xdata = mdates.DateFormatter('%m-%y')
+	ax.set_title('Amazon Ratings Evolution')
+	plt.savefig('ratings.png')
+	plt.figure(2)
+	fig, ax = plt.subplots()
+	stocks = [float(stock.close) for stock in combine.select('close').collect()]
+	ax.set_ylim((min(stocks) - 5.0), (max(stocks) + 5.0))
+	ax.plot_date(dates, stocks, 'b-')
+	ax.fmt_xdata = mdates.DateFormatter('%m-%y')
+	fig.autofmt_xdate()
+	ax.set_title('Stock Values Evolution')
+	plt.savefig('stocks.png')
 
 index = {
 	'getReviews':getReviews,
