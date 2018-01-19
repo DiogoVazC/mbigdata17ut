@@ -49,8 +49,17 @@ args:
 return/print/save:
 """
 def getStock(sqlc):
-	stockFile = "file:///home/" + consts.user + "/aapl-apple-historicalStock.csv"
-	stockData = operation.readStockValue(stockFile, sqlc, consts.beginTime, consts.endTime)
+	companyName = consts.company
+	if companyName == 'apple':
+		consts.stockFile = consts.appleStockFile
+	elif companyName == 'hp':
+		consts.stockFile = consts.hpStockFile
+	if companyName == 'microsoft':
+		consts.stockFile = consts.microsoftStockFile
+	else:
+		consts.stockFile = consts.appleStockFile
+
+	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
 	printR.printFarm(stockData)
 
 """
@@ -132,6 +141,16 @@ args:
 return/print/save:
 """
 def combine(sqlc):
+	companyName = consts.company
+	if companyName == 'apple':
+		consts.stockFile = consts.appleStockFile
+	elif companyName == 'hp':
+		consts.stockFile = consts.hpStockFile
+	if companyName == 'microsoft':
+		consts.stockFile = consts.microsoftStockFile
+	else:
+		consts.stockFile = consts.appleStockFile
+
 	"""Read stock file"""
 	stockData = sqlc.read.format('com.databricks.spark.csv') \
 	    .options(header='true') \

@@ -21,8 +21,8 @@ import sys
 fc = sys.argv[1]
 consts.user = sys.argv[2]
 consts.company = sys.argv[3]
-consts.beginTime = sys.argv[4] if (len(sys.argv) > 5) else consts.Jan2013
-consts.endTime = sys.argv[5] if (len(sys.argv) > 5) else consts.Jun2013
+consts.beginTime = int(sys.argv[4]) if (len(sys.argv) > 5) else consts.Jan2013
+consts.endTime = int(sys.argv[5]) if (len(sys.argv) > 5) else consts.Jun2013
 consts.timeframe = sys.argv[6] if (len(sys.argv) > 6) else 'day'
 
 """Initialize Spark"""

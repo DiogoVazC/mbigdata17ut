@@ -46,7 +46,9 @@ def readStockValue(filename, sqlc, beginTime, endTime):
 	    .option("encoding", "UTF-8") \
 	    .load(filename)
 
+	beginTime = int(beginTime)
+	endTime = int(endTime)
 	a = datetime.datetime.fromtimestamp(beginTime).strftime('%Y/%m/%d')
 	b = datetime.datetime.fromtimestamp(endTime).strftime('%Y/%m/%d')
-	stockDataYear = selectStock(stockData, ["date", "close"], a, b)
+	stockDataYear = selectStock(stockData, ["date", "high", "low", "close", "open", "volume"], a, b)
 	return stockDataYear
