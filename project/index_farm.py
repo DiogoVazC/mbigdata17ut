@@ -175,7 +175,7 @@ def combine(sqlc):
 	fig, ax = plt.subplots()
 	datesObjs = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
 	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
-	ax.set_ylim((min(ratings) - 0.6), 5.0)
+	ax.set_ylim((min(ratings) - 0.4), 5.0)
 	dates = matplotlib.dates.date2num(datesObjs)
 	ax.plot_date(dates, ratings, 'g-')
 	fig.autofmt_xdate()
