@@ -6,6 +6,7 @@ appleStockFile = "file:///home/" + user + "/aapl-apple-historicalStock.csv"
 hpStockFile = "file:///home/" + user + "/hp-historicalStock.csv"
 microsoftStockFile = "file:///home/" + user + "/msft-microsoft-historicalStock.csv"
 Jan2013 = 1356998400 # 1 Jan
+Feb2013 = 1359676800 # 1 Feb
 Mar2013 = 1362096000 # 1 March
 Jun2013 = 1370044800
 Jan2014 = 1388534400 # 1 Jan

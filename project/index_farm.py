@@ -202,7 +202,7 @@ def combine(sqlc):
 	xfmt = mdates.DateFormatter("%d/%m/%Y")
 	ax.xaxis.set_major_formatter(xfmt)
 	ax.set_title(companyName.capitalize() + ' - Amazon Ratings')
-	plt.savefig('ratings_' + companyName + '.png')
+	plt.savefig('ratings_' + companyName + '_' + consts.beginTime + '_' + consts.endTime + '.png')
 	# STOCKS PLOT
 	plt.figure(2)
 	fig, ax = plt.subplots()
@@ -213,7 +213,7 @@ def combine(sqlc):
 	xfmt = mdates.DateFormatter("%d/%m/%Y")
 	ax.xaxis.set_major_formatter(xfmt)
 	ax.set_title(companyName.capitalize() + ' - Stock Values')
-	plt.savefig('stocks_' + companyName + '.png')
+	plt.savefig('stocks_' + companyName + '_' + consts.beginTime + '_' + consts.endTime + '.png')
 
 index = {
 	'getReviews':getReviews,
