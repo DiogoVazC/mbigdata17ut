@@ -153,7 +153,7 @@ def combine(sqlc):
 		consts.stockFile = consts.appleStockFile
 	elif companyName == 'hp':
 		consts.stockFile = consts.hpStockFile
-	if companyName == 'microsoft':
+	elif companyName == 'microsoft':
 		consts.stockFile = consts.microsoftStockFile
 	else:
 		consts.stockFile = consts.appleStockFile
@@ -190,26 +190,30 @@ def combine(sqlc):
 
 	printR.printFarm(combine)
 
+	# RATINGS PLOT
 	plt.figure(1)
 	fig, ax = plt.subplots()
-	datesObjs = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
+	datesObj = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
 	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
 	ax.set_ylim((min(ratings) - 0.4), 5.0)
-	dates = matplotlib.dates.date2num(datesObjs)
+	dates = matplotlib.dates.date2num(datesObj)
 	ax.plot_date(dates, ratings, 'g-')
 	fig.autofmt_xdate()
-	ax.fmt_xdata = mdates.DateFormatter('%m-%y')
-	ax.set_title('Amazon Ratings Evolution')
-	plt.savefig('ratings.png')
+	xfmt = mdates.DateFormatter("%d/%m/%Y")
+	ax.xaxis.set_major_formatter(xfmt)
+	ax.set_title(companyName.capitalize() + ' - Amazon Ratings')
+	plt.savefig('ratings_' + companyName + '.png')
+	# STOCKS PLOT
 	plt.figure(2)
 	fig, ax = plt.subplots()
 	stocks = [float(stock.close) for stock in combine.select('close').collect()]
 	ax.set_ylim((min(stocks) - 5.0), (max(stocks) + 5.0))
 	ax.plot_date(dates, stocks, 'b-')
-	ax.fmt_xdata = mdates.DateFormatter('%m-%y')
 	fig.autofmt_xdate()
-	ax.set_title('Stock Values Evolution')
-	plt.savefig('stocks.png')
+	xfmt = mdates.DateFormatter("%d/%m/%Y")
+	ax.xaxis.set_major_formatter(xfmt)
+	ax.set_title(companyName.capitalize() + ' - Stock Values')
+	plt.savefig('stocks_' + companyName + '.png')
 
 index = {
 	'getReviews':getReviews,
