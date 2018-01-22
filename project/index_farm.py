@@ -190,30 +190,57 @@ def combine(sqlc):
 
 	printR.printFarm(combine)
 
-	# RATINGS PLOT
-	plt.figure(1)
-	fig, ax = plt.subplots()
-	datesObj = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
-	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
-	ax.set_ylim((min(ratings) - 0.4), 5.0)
-	dates = matplotlib.dates.date2num(datesObj)
-	ax.plot_date(dates, ratings, 'g-')
-	fig.autofmt_xdate()
-	xfmt = mdates.DateFormatter("%d/%m/%Y")
-	ax.xaxis.set_major_formatter(xfmt)
-	ax.set_title(companyName.capitalize() + ' - Amazon Ratings')
-	plt.savefig('ratings_' + companyName + '_' + consts.beginTime + '_' + consts.endTime + '.png')
-	# STOCKS PLOT
-	plt.figure(2)
-	fig, ax = plt.subplots()
-	stocks = [float(stock.close) for stock in combine.select('close').collect()]
-	ax.set_ylim((min(stocks) - 5.0), (max(stocks) + 5.0))
-	ax.plot_date(dates, stocks, 'b-')
-	fig.autofmt_xdate()
-	xfmt = mdates.DateFormatter("%d/%m/%Y")
-	ax.xaxis.set_major_formatter(xfmt)
-	ax.set_title(companyName.capitalize() + ' - Stock Values')
-	plt.savefig('stocks_' + companyName + '_' + consts.beginTime + '_' + consts.endTime + '.png')
+	if(consts.saveGraph):
+		# RATINGS PLOT
+		plt.figure(1)
+		fig, ax = plt.subplots()
+		datesObj = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
+		ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
+		ax.set_ylim((min(ratings) - 0.4), 5.0)
+		dates = matplotlib.dates.date2num(datesObj)
+		ax.plot_date(dates, ratings, 'g-')
+		fig.autofmt_xdate()
+		xfmt = mdates.DateFormatter("%d/%m/%Y")
+		ax.xaxis.set_major_formatter(xfmt)
+		ax.set_title(companyName.capitalize() + ' - Amazon Ratings')
+		plt.savefig('ratings_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+		# STOCKS PLOT
+		plt.figure(2)
+		fig, ax = plt.subplots()
+		stocks = [float(stock.close) for stock in combine.select('close').collect()]
+		ax.set_ylim((min(stocks) - 5.0), (max(stocks) + 5.0))
+		ax.plot_date(dates, stocks, 'b-')
+		fig.autofmt_xdate()
+		xfmt = mdates.DateFormatter("%d/%m/%Y")
+		ax.xaxis.set_major_formatter(xfmt)
+		ax.set_title(companyName.capitalize() + ' - Stock Values')
+		plt.savefig('stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+
+		diff = False
+		if diff:
+			# DIFF RATINGS PLOT
+			plt.figure(3)
+			fig, ax = plt.subplots()
+			diffRatings = [j-i for i, j in zip(ratings[:-1], ratings[1:])]
+			ax.set_ylim((min(diffRatings) - 0.2), (max(diffRatings) + 0.2))
+			ax.plot_date(dates, diffRatings, 'g-')
+			fig.autofmt_xdate()
+			xfmt = mdates.DateFormatter("%d/%m/%Y")
+			ax.xaxis.set_major_formatter(xfmt)
+			ax.set_title(companyName.capitalize() + ' - Amazon Ratings Evolution (daily)')
+			plt.savefig('diff_ratings_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+			# DIFF STOCKS PLOT
+			plt.figure(4)
+			fig, ax = plt.subplots()
+			diffStocks = [j-i for i, j in zip(stocks[:-1], stocks[1:])]
+			ax.set_ylim((min(diffStocks) - 2), (max(diffStocks) + 2))
+			ax.plot_date(dates, diffStocks, 'b-')
+			fig.autofmt_xdate()
+			xfmt = mdates.DateFormatter("%d/%m/%Y")
+			ax.xaxis.set_major_formatter(xfmt)
+			ax.set_title(companyName.capitalize() + ' - Stock Value Evolution (daily)')
+			plt.savefig('diff_stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+
 
 index = {
 	'getReviews':getReviews,
