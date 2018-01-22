@@ -14,3 +14,15 @@ Same in cluster
 real    9m26.836s
 user    5m47.025s
 sys     0m4.770s
+
+Jan2013-2014:
+apple - 6972
+hp - 2594
+microsoft - 358
+dell - 1498
+sony - 4095
+samsung - 2594
+
+
+cisco 2years (jan2012-jan2014):
+countRatings 2909

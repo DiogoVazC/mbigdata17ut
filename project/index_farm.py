@@ -63,12 +63,19 @@ def getStock(sqlc):
 		consts.stockFile = consts.appleStockFile
 	elif companyName == 'hp':
 		consts.stockFile = consts.hpStockFile
-	if companyName == 'microsoft':
+	elif companyName == 'microsoft':
 		consts.stockFile = consts.microsoftStockFile
+	elif companyName == 'samsung':
+		consts.stockFile = consts.samsungStockFile
+	elif companyName == 'sony':
+		consts.stockFile = consts.sonyStockFile
+	elif companyName == 'dell':
+		consts.stockFile = consts.dellStockFile
 	else:
 		consts.stockFile = consts.appleStockFile
 
 	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
+	stockData = stockData.orderBy("date", ascending=True)
 	printR.printFarm(stockData)
 
 """
@@ -129,11 +136,7 @@ def countRatings(sqlc):
 	df2 = sqlc.read.json(consts.reviewsfilefarm)
 
 	"""Select Data"""
-	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 50)
-	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
-
-	"""Join"""
-	reviews = reviews.join(meta, "asin")
+	reviews = operation.selectReviewsText(df2, consts.company, ['asin', "overall", "unixReviewTime", "reviewText"], consts.beginTime, consts.endTime)
 
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
@@ -157,6 +160,12 @@ def combine(sqlc):
 		consts.stockFile = consts.hpStockFile
 	elif companyName == 'microsoft':
 		consts.stockFile = consts.microsoftStockFile
+	elif companyName == 'samsung':
+		consts.stockFile = consts.samsungStockFile
+	elif companyName == 'sony':
+		consts.stockFile = consts.sonyStockFile
+	elif companyName == 'dell':
+		consts.stockFile = consts.dellStockFile
 	else:
 		consts.stockFile = consts.appleStockFile
 
@@ -253,11 +262,59 @@ def combine(sqlc):
 			plt.savefig('diff_stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
 
 
+def multipleCompanies(sqlc):
+	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearHp = operation.readStockValue(consts.hpStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearMicrosoft = operation.readStockValue(consts.microsoftStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearDell = operation.readStockValue(consts.dellStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearSony = operation.readStockValue(consts.sonyStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearSamsung = operation.readStockValue(consts.samsungStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataList = [stockDataYearApple, stockDataYearHp, stockDataYearMicrosoft, stockDataYearDell, stockDataYearSony, stockDataYearSamsung]
+	companyList = ['apple', 'hp', 'microsoft', 'dell', 'sony', 'samsung']
+
+	"""Change Date Format from Y/M/d to Y-M-d"""
+	my_udf = udf(operation.formatDate)
+	index = 0
+	for stock in stockDataList:
+		stockDataList[index] = stock.withColumn("date", my_udf("date"))
+		print stockDataList[index].take(2)
+		index += 1
+
+	"""Read Meta and Reviews Files"""
+	df = sqlc.read.json(consts.filename)
+	df2 = sqlc.read.json(consts.reviewsfilefarm)
+
+	results = None
+
+	index = 0
+	for company in companyList:
+		stockDataList[index] = stockDataList[index].withColumnRenamed('close', 'stock ' + company)
+		meta = operation.selectProducts(df, ["asin", "title", "price"], company, 50)
+		reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], consts.beginTime, consts.endTime)
+		amazonjoin = reviews.join(meta, "asin")
+		print "amazonjoin " + company
+		print amazonjoin.take(5)
+		rating = operation.averageRatingAlias(amazonjoin, 'day', 'rating ' + company)
+		print "rating and stock " + company
+		print rating.take(5)
+		print stockDataList[index].take(5)
+		combine = rating.join(stockDataList[index], "date")
+		combine = combine.orderBy("date", ascending=True)
+		print "combine " + company
+		print combine.take(5)
+		"""if index == 0:
+									results = combine
+								else:
+									results = results.join(combine, "date")"""
+		index += 1
+
+
 index = {
 	'getReviews':getReviews,
 	'stock':getStock,
 	'ratingGroupAvg':getRatingGroupAvg,
 	'ratingAvg':getRatingAvg,
 	'countRatings':countRatings,
-	'combine':combine
+	'combine':combine,
+	'multipleCompanies': multipleCompanies
 }
