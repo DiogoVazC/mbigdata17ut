@@ -3,12 +3,21 @@ import datetime
 
 def selectProducts(dataframe, col, title, price):
 	products = dataframe.select(col)
-	meta = products.filter(products.title.rlike('(?i).*' + title + '.*')) 	\
+	meta = products.filter(products.title.rlike('(?i).* ' + title + ' .*')) 	\
 		.filter(products.price > price)
 	return meta
 
 def selectReviews(dataframe, col, beginTime, endTime):
 	reviews = dataframe.select(col) \
+		.filter(dataframe.unixReviewTime > beginTime) \
+		.filter(dataframe.unixReviewTime < endTime)
+	reviews = reviews.withColumn("unixReviewTime", from_unixtime(reviews.unixReviewTime, "yyyy-MM-dd"))
+	reviews = reviews.withColumnRenamed("unixReviewTime", "date")
+	return reviews
+
+def selectReviewsText(dataframe, company, col, beginTime, endTime):
+	reviews = dataframe.select(col) \
+		.filter(dataframe.reviewText.rlike('(?i).* ' + company + ' .*')) \
 		.filter(dataframe.unixReviewTime > beginTime) \
 		.filter(dataframe.unixReviewTime < endTime)
 	reviews = reviews.withColumn("unixReviewTime", from_unixtime(reviews.unixReviewTime, "yyyy-MM-dd"))
@@ -32,6 +41,17 @@ def averageRating(dataframe, timeframe):
 		.orderBy("date", ascending=True)
 	return rating
 
+def averageRatingAlias(dataframe, timeframe, colName):
+	if timeframe == 'month':
+		dataframe = dataframe.withColumn("date", dataframe['date'].substr(1,7))
+	elif timeframe == '10days':
+		dataframe = dataframe.withColumn("date", dataframe['date'].substr(1,9))
+
+	rating = dataframe.groupBy(dataframe.date) \
+		.agg(avg(col("overall")).alias(colName)) \
+		.orderBy("date", ascending=True)
+	return rating
+
 def countApprox(rdd):
 	return rdd.countApprox(1500, 0.95)
 
@@ -50,5 +70,5 @@ def readStockValue(filename, sqlc, beginTime, endTime):
 	endTime = int(endTime)
 	a = datetime.datetime.fromtimestamp(beginTime).strftime('%Y/%m/%d')
 	b = datetime.datetime.fromtimestamp(endTime).strftime('%Y/%m/%d')
-	stockDataYear = selectStock(stockData, ["date", "high", "low", "close", "open", "volume"], a, b)
+	stockDataYear = selectStock(stockData, ["date", "close"], a, b)
 	return stockDataYear

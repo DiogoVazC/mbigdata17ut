@@ -50,9 +50,23 @@ args:
 return/print/save:
 """
 def getStock(sqlc):
-	stockFile = "file:///home/" + consts.user + "/aapl-apple-historicalStock.csv"
+	companyName = consts.company
+	if companyName == 'apple':
+		consts.stockFile = consts.appleStockFile
+	elif companyName == 'hp':
+		consts.stockFile = consts.hpStockFile
+	elif companyName == 'microsoft':
+		consts.stockFile = consts.microsoftStockFile
+	elif companyName == 'samsung':
+		consts.stockFile = consts.samsungStockFile
+	elif companyName == 'sony':
+		consts.stockFile = consts.sonyStockFile
+	elif companyName == 'dell':
+		consts.stockFile = consts.dellStockFile
+	else:
+		consts.stockFile = consts.appleStockFile
 	#.option("mode", "DROPMALFORMED") \
-	stockData = operation.readStockValue(stockFile, sqlc, consts.beginTime, consts.endTime)
+	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
 
 	printR.printClusterRDD(stockData.rdd, consts.user, consts.folder)
 
@@ -115,11 +129,7 @@ def countRatings(sqlc):
 	df2 = sqlc.read.json(consts.reviewsfile)
 
 	"""Select Data"""
-	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 50)
-	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
-
-	"""Join"""
-	reviews = reviews.join(meta, "asin")
+	reviews = operation.selectReviewsText(df2, consts.company, ['asin', "overall", "unixReviewTime", "reviewText"], consts.beginTime, consts.endTime)
 
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
@@ -136,6 +146,22 @@ args:
 return/print/save:
 """
 def combine(sqlc):
+	companyName = consts.company
+	if companyName == 'apple':
+		consts.stockFile = consts.appleStockFile
+	elif companyName == 'hp':
+		consts.stockFile = consts.hpStockFile
+	elif companyName == 'microsoft':
+		consts.stockFile = consts.microsoftStockFile
+	elif companyName == 'samsung':
+		consts.stockFile = consts.samsungStockFile
+	elif companyName == 'sony':
+		consts.stockFile = consts.sonyStockFile
+	elif companyName == 'dell':
+		consts.stockFile = consts.dellStockFile
+	else:
+		consts.stockFile = consts.appleStockFile
+
 	"""Read stock file"""
 	stockData = sqlc.read.format('com.databricks.spark.csv') \
 	    .options(header='true') \
@@ -166,8 +192,49 @@ def combine(sqlc):
 	combine = rating.join(stockDataYear, "date")
 	combine = combine.orderBy("date", ascending=True)
 
-	printR.printClusterRDD(combine.rdd, consts.user, consts.folder)
+	"""combine.write.format("com.databricks.spark.csv").save("/user/" + consts.user + "/project/data/" + consts.folder, header="true")"""
 
+	printR.printClusterRDD(combine.rdd, consts.user, consts.folder)
+	"""printR.saveClusterCSV(combine, consts.user, consts.folder)"""
+
+def multipleCompanies(sqlc):
+	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearHp = operation.readStockValue(consts.hpStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearMicrosoft = operation.readStockValue(consts.microsoftStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearDell = operation.readStockValue(consts.dellStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearSony = operation.readStockValue(consts.sonyStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearSamsung = operation.readStockValue(consts.samsungStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataList = [stockDataYearApple, stockDataYearHp, stockDataYearMicrosoft, stockDataYearDell, stockDataYearSony, stockDataYearSamsung]
+	companyList = ['apple', 'hp', 'microsoft', 'dell', 'sony', 'samsung']
+
+	"""Change Date Format from Y/M/d to Y-M-d"""
+	my_udf = udf(operation.formatDate)
+	for stock in stockDataList:
+		stock = stock.withColumn("date", my_udf(stock.date))
+
+	"""Read Meta and Reviews Files"""
+	df = sqlc.read.json(consts.filename)
+	df2 = sqlc.read.json(consts.reviewsfile)
+
+	results = None
+
+	index = 0
+	for company in companyList:
+		stockDataList[index] = stockDataList[index].withColumnRenamed('close', 'stock ' + company)
+		meta = operation.selectProducts(df, ["asin", "title", "price"], company, 50)
+		reviews = operation.selectReviews(df2, ['asin', "overall", "unixReviewTime"], consts.beginTime, consts.endTime)
+		amazonjoin = reviews.join(meta, "asin")
+		rating = operation.averageRatingAlias(amazonjoin, 'day', 'rating ' + company)
+		combine = rating.join(stockDataList[index], "date")
+		combine = combine.orderBy("date", ascending=True)
+		printR.printClusterRDD(combine.rdd, consts.user, consts.folder + '' + str(index))
+		"""if index == 0:
+									results = combine
+								else:
+									results = results.join(combine, "date")"""
+		index += 1
+
+	printR.printClusterRDD(results.rdd, consts.user, consts.folder)
 
 index = {
 	'getReviews':getReviews,
@@ -175,5 +242,6 @@ index = {
 	'ratingGroupAvg':getRatingGroupAvg,
 	'ratingAvg':getRatingAvg,
 	'countRatings':countRatings,
-	'combine':combine
+	'combine':combine,
+	'multipleCompanies': multipleCompanies
 }
