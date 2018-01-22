@@ -191,7 +191,7 @@ def combine(sqlc):
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
-	rating = operation.averageRating(reviews, 'day')
+	rating = operation.averageRating(reviews, consts.timeframe)
 
 	"""Join ratings with stock"""
 	combine = rating.join(stockDataYear, "date")
@@ -283,7 +283,7 @@ def multipleCompanies(sqlc):
 		amazonjoin = reviews.join(meta, "asin")
 		print "amazonjoin " + company
 		print amazonjoin.take(5)
-		rating = operation.averageRatingAlias(amazonjoin, 'day', 'rating ' + company)
+		rating = operation.averageRatingAlias(amazonjoin, consts.timeframe, 'rating ' + company)
 		print "rating and stock " + company
 		print rating.take(5)
 		print stockDataList[index].take(5)

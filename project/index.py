@@ -186,7 +186,7 @@ def combine(sqlc):
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
-	rating = operation.averageRating(reviews, 'day')
+	rating = operation.averageRating(reviews, consts.timeframe)
 
 	"""Join ratings with stock"""
 	combine = rating.join(stockDataYear, "date")
