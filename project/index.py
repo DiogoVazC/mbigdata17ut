@@ -1,7 +1,7 @@
 """
 This File is the index and functions the program can do (in cluster)
 
-At the end of the page there's an index. 
+At the end of the page there's an index.
 Everytime a function is added, the index should be updated with the correct arguments.
 """
 
@@ -9,6 +9,7 @@ Everytime a function is added, the index should be updated with the correct argu
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
+import csv
 import dataframeOperations as operation
 import printResults as printR
 import consts
@@ -77,7 +78,7 @@ args:
 
 return/print/save:
 """
-def getRatingGroupAvg(sqlc):	
+def getRatingGroupAvg(sqlc):
 	"""Read Files"""
 	df = sqlc.read.json(consts.filename)
 	df2 = sqlc.read.json(consts.reviewsfile)
@@ -137,7 +138,7 @@ def countRatings(sqlc):
 	print contagem
 
 """
-Combine Stock Value for a company in stock market and 
+Combine Stock Value for a company in stock market and
 the avg rating given in reviews in the same day in Amazon.com
 for each day in a given time
 
@@ -196,6 +197,18 @@ def combine(sqlc):
 
 	printR.printClusterRDD(combine.rdd, consts.user, consts.folder)
 	"""printR.saveClusterCSV(combine, consts.user, consts.folder)"""
+
+	dates = [rat.date for rat in combine.select('date').collect()]
+	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
+	stocks = [float(stock.close) for stock in combine.select('close').collect()]
+	diffRatings = [(((j-i)*100.0)/i) for i, j in zip(ratings[:-1], ratings[1:])]
+	diffStocks = [(((j-i)*100.0)/i) for i, j in zip(stocks[:-1], stocks[1:])]
+
+	rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
+	with open(companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
+	    writer = csv.writer(fileCSV)
+	    for row in rows:
+        	writer.writerow(row)
 
 def multipleCompanies(sqlc):
 	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, consts.beginTime, consts.endTime)
