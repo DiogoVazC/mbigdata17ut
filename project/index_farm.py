@@ -136,12 +136,37 @@ def countRatings(sqlc):
 	df2 = sqlc.read.json(consts.reviewsfilefarm)
 
 	"""Select Data"""
+	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 25)
+	reviews = operation.selectReviews(df2, ['asin'], consts.beginTime, consts.endTime)
+
+	"""Join Reviews asin"""
+	reviews = reviews.join(meta, "asin")
+	
+	"""Count"""
+	contagem = operation.countApprox(reviews.rdd)
+
+	print contagem
+
+"""
+Get count of reveiws for a company's produtcs in Amazon.com
+
+args:
+
+return/print/save:
+"""
+def countReviews(sqlc):
+	"""Read Files"""
+	df = sqlc.read.json(consts.filename)
+	df2 = sqlc.read.json(consts.reviewsfilefarm)
+
+	"""Select Data"""
 	reviews = operation.selectReviewsText(df2, consts.company, ['asin', "overall", "unixReviewTime", "reviewText"], consts.beginTime, consts.endTime)
 
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
 
 	print contagem
+
 
 """
 Combine Stock Value for a company in stock market and
@@ -193,7 +218,7 @@ def combine(sqlc):
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
-	rating = operation.averageRating(reviews, 'day')
+	rating = operation.averageRating(reviews, consts.timeframe)
 
 	"""Join ratings with stock"""
 	combine = rating.join(stockDataYear, "date")
@@ -294,7 +319,7 @@ def multipleCompanies(sqlc):
 		amazonjoin = reviews.join(meta, "asin")
 		print "amazonjoin " + company
 		print amazonjoin.take(5)
-		rating = operation.averageRatingAlias(amazonjoin, 'day', 'rating ' + company)
+		rating = operation.averageRatingAlias(amazonjoin, consts.timeframe, 'rating ' + company)
 		print "rating and stock " + company
 		print rating.take(5)
 		print stockDataList[index].take(5)
