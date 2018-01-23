@@ -1,7 +1,7 @@
 """
 This File is the index and functions the program can do (in cluster)
 
-At the end of the page there's an index. 
+At the end of the page there's an index.
 Everytime a function is added, the index should be updated with the correct arguments.
 """
 
@@ -9,6 +9,7 @@ Everytime a function is added, the index should be updated with the correct argu
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
+import csv
 import dataframeOperations as operation
 import printResults as printR
 import consts
@@ -51,20 +52,7 @@ return/print/save:
 """
 def getStock(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 	#.option("mode", "DROPMALFORMED") \
 	stockData = operation.readStockValue(consts.stockFile, sqlc, ["date", "volume", "high", "low", "open", "close"], consts.beginTime, consts.endTime)
 
@@ -77,7 +65,7 @@ args:
 
 return/print/save:
 """
-def getRatingGroupAvg(sqlc):	
+def getRatingGroupAvg(sqlc):
 	"""Read Files"""
 	df = sqlc.read.json(consts.filename)
 	df2 = sqlc.read.json(consts.reviewsfile)
@@ -162,7 +150,7 @@ def countReviews(sqlc):
 	print contagem
 
 """
-Combine Stock Value for a company in stock market and 
+Combine Stock Value for a company in stock market and
 the avg rating given in reviews in the same day in Amazon.com
 for each day in a given time
 
@@ -172,20 +160,7 @@ return/print/save:
 """
 def combine(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 
 	"""Read stock file"""
 	stockData = sqlc.read.format('com.databricks.spark.csv') \
@@ -225,6 +200,18 @@ def combine(sqlc):
 
 	printR.printClusterRDD(combine.rdd, consts.user, consts.folder)
 	"""printR.saveClusterCSV(combine, consts.user, consts.folder)"""
+
+	dates = [rat.date for rat in combine.select('date').collect()]
+	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
+	stocks = [float(stock.close) for stock in combine.select('close').collect()]
+	diffRatings = [(((j-i)*100.0)/i) for i, j in zip(ratings[:-1], ratings[1:])]
+	diffStocks = [(((j-i)*100.0)/i) for i, j in zip(stocks[:-1], stocks[1:])]
+
+	rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
+	with open('file:///home/' + consts.user + '/' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
+	    writer = csv.writer(fileCSV)
+	    for row in rows:
+        	writer.writerow(row)
 
 def multipleCompanies(sqlc):
 	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)

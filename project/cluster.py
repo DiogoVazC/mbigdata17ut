@@ -25,7 +25,6 @@ consts.timeframe = sys.argv[5] if (len(sys.argv) > 5) else 'day'
 consts.beginTime = int(sys.argv[6]) if (len(sys.argv) > 7) else consts.Jan2013
 consts.endTime = int(sys.argv[7]) if (len(sys.argv) > 7) else consts.Jan2014
 
-
 """Initialize Spark"""
 sc = SparkContext(appName="Stock Value")
 sqlc = SQLContext(sc)

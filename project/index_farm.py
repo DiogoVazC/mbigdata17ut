@@ -59,20 +59,7 @@ return/print/save:
 """
 def getStock(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 
 	stockData = operation.readStockValue(consts.stockFile, sqlc, ["date", "volume", "high", "low", "open", "close"], consts.beginTime, consts.endTime)
 	stockData = stockData.orderBy("date", ascending=True)
@@ -179,20 +166,7 @@ return/print/save:
 """
 def combine(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 
 	"""Read stock file"""
 	stockData = sqlc.read.format('com.databricks.spark.csv') \
