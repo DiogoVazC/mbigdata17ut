@@ -118,7 +118,7 @@ def countRatings(sqlc):
 
 	"""Select Data"""
 	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 25)
-	reviews = operation.selectReviews(df2, ['asin'], consts.beginTime, consts.endTime)
+	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
