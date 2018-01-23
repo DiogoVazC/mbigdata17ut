@@ -9,7 +9,7 @@ Everytime a function is added, the index should be updated with the correct argu
 # PySpark
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, weekofyear, countDistinct
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, weekofyear, month, countDistinct
 import csv
 # Project
 import dataframeOperations as operation

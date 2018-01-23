@@ -8,7 +8,7 @@ Everytime a function is added, the index should be updated with the correct argu
 """Import packages"""
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, weekofyear, month
 import csv
 import dataframeOperations as operation
 import printResults as printR
@@ -139,15 +139,25 @@ return/print/save:
 def countReviews(sqlc):
 	"""Read Files"""
 	df = sqlc.read.json(consts.filename)
-	df2 = sqlc.read.json(consts.reviewsfile)
+	df2 = sqlc.read.json(consts.reviewsfilefarm)
 
 	"""Select Data"""
-	reviews = operation.selectReviewsText(df2, consts.company, ['asin', "overall", "unixReviewTime", "reviewText"], consts.beginTime, consts.endTime)
+	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 25)
+	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
 
-	"""Count"""
-	contagem = operation.countApprox(reviews.rdd)
+	timeframe = consts.timeframe
 
-	print contagem
+	"""Join Reviews asin"""
+	reviews = reviews.join(meta, "asin") 
+
+	if timeframe == 'month':
+		res = reviews.groupBy(month(reviews.date)).count().orderBy('month(date)', ascending=True)
+	elif timeframe == 'week':
+		res = reviews.groupBy(weekofyear(reviews.date)).count().orderBy('weekofyear(date)', ascending=True)
+	else:
+		res = reviews.groupBy("date").count().orderBy('date', ascending=True)
+
+	printR.printClusterRDD(res.rdd, consts.user, consts.folder)
 
 """
 Combine Stock Value for a company in stock market and
@@ -254,6 +264,7 @@ def multipleCompanies(sqlc):
 
 index = {
 	'getReviews':getReviews,
+	'count':countReviews,
 	'stock':getStock,
 	'ratingGroupAvg':getRatingGroupAvg,
 	'ratingAvg':getRatingAvg,
