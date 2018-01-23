@@ -159,16 +159,13 @@ def countReviews(sqlc):
 	reviews = reviews.join(meta, "asin") 
 
 	if timeframe == 'month':
-		res = reviews.agg(countDistinct(month(reviews.date))) \
-			.withColumnRenamed("month(date)", "date") \
-			.orderBy("date", ascending=True).show()
+		res = reviews.groupBy(month(reviews.date)).count().orderBy('month(date)', ascending=True)
 	elif timeframe == 'week':
-		res = reviews.agg(countDistinct(weekofyear(reviews.date))) \
-			.withColumnRenamed("month(date)", "date") \
-			.orderBy("date", ascending=True).show()
+		res = reviews.groupBy(weekofyear(reviews.date)).count().orderBy('weekofyear(date)', ascending=True)
 	else:
-		res = reviews.agg(countDistinct(date)) \
-			.orderBy("date", ascending=True).show()
+		res = reviews.groupBy("date").count().orderBy('date', ascending=True)
+
+	print res.collect()
 
 """
 Combine Stock Value for a company in stock market and
