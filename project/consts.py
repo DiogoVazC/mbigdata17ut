@@ -15,6 +15,7 @@ hpStockFile = "/hpe-hp-historicalStock.csv"
 microsoftStockFile = "/msft-microsoft-historicalStock.csv"
 dellStockFile = "/dmvt-dell-historicalStock.csv"
 ciscoStockFile = "/cisco-historicalStock.csv"
+intelStockFile = "/intc-intel-historicalStock.csv"
 panasonicStockFile = "/panasonic-historicalStock.csv"
 sonyStockFile = "/sne-sony-historicalStock.csv"
 samsungStockFile = "/ssnlf-samsung-historicalStock.csv"
@@ -35,6 +36,8 @@ def setStockFile(company, user):
     	stockFile = path + dellStockFile
     elif company == 'cisco':
     	stockFile = path + ciscoStockFile
+    elif company == 'intel':
+    	stockFile = path + intelStockFile
     elif company == 'panasonic':
     	stockFile = path + panasonicStockFile
     else:
