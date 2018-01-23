@@ -52,20 +52,7 @@ return/print/save:
 """
 def getStock(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 	#.option("mode", "DROPMALFORMED") \
 	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
 
@@ -135,7 +122,7 @@ def countRatings(sqlc):
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
-	
+
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
 
@@ -173,20 +160,7 @@ return/print/save:
 """
 def combine(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 
 	"""Read stock file"""
 	stockData = sqlc.read.format('com.databricks.spark.csv') \
@@ -230,7 +204,7 @@ def combine(sqlc):
 	diffStocks = [(((j-i)*100.0)/i) for i, j in zip(stocks[:-1], stocks[1:])]
 
 	rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
-	with open(companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
+	with open('file:///home/' + consts.user + '/' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
 	    writer = csv.writer(fileCSV)
 	    for row in rows:
         	writer.writerow(row)

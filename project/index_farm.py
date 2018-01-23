@@ -9,7 +9,7 @@ Everytime a function is added, the index should be updated with the correct argu
 # PySpark
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, hour
 import csv
 # Project
 import dataframeOperations as operation
@@ -59,20 +59,7 @@ return/print/save:
 """
 def getStock(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 
 	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
 	stockData = stockData.orderBy("date", ascending=True)
@@ -141,7 +128,7 @@ def countRatings(sqlc):
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
-	
+
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
 
@@ -179,20 +166,7 @@ return/print/save:
 """
 def combine(sqlc):
 	companyName = consts.company
-	if companyName == 'apple':
-		consts.stockFile = consts.appleStockFile
-	elif companyName == 'hp':
-		consts.stockFile = consts.hpStockFile
-	elif companyName == 'microsoft':
-		consts.stockFile = consts.microsoftStockFile
-	elif companyName == 'samsung':
-		consts.stockFile = consts.samsungStockFile
-	elif companyName == 'sony':
-		consts.stockFile = consts.sonyStockFile
-	elif companyName == 'dell':
-		consts.stockFile = consts.dellStockFile
-	else:
-		consts.stockFile = consts.appleStockFile
+	consts.stockFile = consts.setStockFile(companyName, consts.user)
 
 	"""Read stock file"""
 	stockData = sqlc.read.format('com.databricks.spark.csv') \

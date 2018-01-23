@@ -1,13 +1,3 @@
-user = 's1997319'
-filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
-reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
-reviewsfilefarm = 'file:///home/' + user + '/reviews_Electronics.json.gz'
-appleStockFile = "file:///home/" + user + "/aapl-apple-historicalStock.csv"
-hpStockFile = "file:///home/" + user + "/hpe-hp-historicalStock.csv"
-microsoftStockFile = "file:///home/" + user + "/msft-microsoft-historicalStock.csv"
-dellStockFile = "file:///home/" + user + "/dmvt-dell-historicalStock.csv"
-sonyStockFile = "file:///home/" + user + "/sne-sony-historicalStock.csv"
-samsungStockFile = "file:///home/" + user + "/ssnlf-samsung-historicalStock.csv"
 Jan2013 = 1356998400 # 1 Jan
 Feb2013 = 1359676800 # 1 Feb
 Mar2013 = 1362096000 # 1 March
@@ -16,3 +6,37 @@ Jan2014 = 1388534400 # 1 Jan
 Jun2014 = 1404172800 # 31 June
 Dec2014 = 1419984000 # 31 Dec
 saveGraph = False
+
+filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
+reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
+reviewsfilefarm = 'file:///home/s1997319/reviews_Electronics.json.gz'
+appleStockFile = "/aapl-apple-historicalStock.csv"
+hpStockFile = "/hpe-hp-historicalStock.csv"
+microsoftStockFile = "/msft-microsoft-historicalStock.csv"
+dellStockFile = "/dmvt-dell-historicalStock.csv"
+ciscoStockFile = "/cisco-historicalStock.csv"
+panasonicStockFile = "/panasonic-historicalStock.csv"
+sonyStockFile = "/sne-sony-historicalStock.csv"
+samsungStockFile = "/ssnlf-samsung-historicalStock.csv"
+
+def setStockFile(company, user):
+    path = 'file:///home/' + user
+    if company == 'apple':
+    	stockFile = path + appleStockFile
+    elif company == 'hp':
+    	stockFile = path + hpStockFile
+    elif company == 'microsoft':
+    	stockFile = path + microsoftStockFile
+    elif company == 'samsung':
+    	stockFile = path + samsungStockFile
+    elif company == 'sony':
+    	stockFile = path + sonyStockFile
+    elif company == 'dell':
+    	stockFile = path + dellStockFile
+    elif company == 'cisco':
+    	stockFile = path + ciscoStockFile
+    elif company == 'panasonic':
+    	stockFile = path + panasonicStockFile
+    else:
+    	stockFile = path + appleStockFile
+    return stockFile
