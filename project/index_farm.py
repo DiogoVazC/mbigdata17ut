@@ -9,7 +9,7 @@ Everytime a function is added, the index should be updated with the correct argu
 # PySpark
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, weekofyear
 import csv
 # Project
 import dataframeOperations as operation
@@ -74,7 +74,7 @@ def getStock(sqlc):
 	else:
 		consts.stockFile = consts.appleStockFile
 
-	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
+	stockData = operation.readStockValue(consts.stockFile, sqlc, ["date", "volume", "high", "low", "open", "close"], consts.beginTime, consts.endTime)
 	stockData = stockData.orderBy("date", ascending=True)
 	printR.printFarm(stockData)
 
@@ -137,11 +137,11 @@ def countRatings(sqlc):
 
 	"""Select Data"""
 	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 25)
-	reviews = operation.selectReviews(df2, ['asin'], consts.beginTime, consts.endTime)
+	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
 
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
-	
+
 	"""Count"""
 	contagem = operation.countApprox(reviews.rdd)
 
@@ -208,7 +208,9 @@ def combine(sqlc):
 
 	"""Change Date Format from Y/M/d to Y-M-d"""
 	my_udf = udf(operation.formatDate)
-	stockDataYear = stockDataYear.withColumn("date", my_udf(stockDataYear.date))
+	stockData = stockDataYear.withColumn("date", my_udf(stockDataYear.date))
+	if consts.timeframe != 'day': 
+		stockData = operation.averageStock(stockData, consts.timeframe)
 
 	"""Read Meta and Reviews Files"""
 	df = sqlc.read.json(consts.filename)
@@ -219,81 +221,82 @@ def combine(sqlc):
 	"""Join Reviews asin"""
 	reviews = reviews.join(meta, "asin")
 	rating = operation.averageRating(reviews, consts.timeframe)
+	printR.printFarmExample(rating, 2)
 
 	"""Join ratings with stock"""
-	combine = rating.join(stockDataYear, "date")
+	combine = rating.join(stockData, "date")
 	combine = combine.orderBy("date", ascending=True)
 
 	printR.printFarm(combine)
 
-	# Generate CSV with output data
-	dates = [rat.date for rat in combine.select('date').collect()]
-	ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
-	stocks = [float(stock.close) for stock in combine.select('close').collect()]
-	diffRatings = [(((j-i)*100.0)/i) for i, j in zip(ratings[:-1], ratings[1:])]
-	diffStocks = [(((j-i)*100.0)/i) for i, j in zip(stocks[:-1], stocks[1:])]
-
-	rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
-	with open(companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
-	    writer = csv.writer(fileCSV)
-	    for row in rows:
-        	writer.writerow(row)
-
-	if(consts.saveGraph):
-		# RATINGS PLOT
-		plt.figure(1)
-		fig, ax = plt.subplots()
-		datesObj = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
-		ax.set_ylim((min(ratings) - 0.4), 5.0)
-		dates = matplotlib.dates.date2num(datesObj)
-		ax.plot_date(dates, ratings, 'g-')
-		fig.autofmt_xdate()
-		xfmt = mdates.DateFormatter("%d/%m/%Y")
-		ax.xaxis.set_major_formatter(xfmt)
-		ax.set_title(companyName.capitalize() + ' - Amazon Ratings')
-		plt.savefig('ratings_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
-		# STOCKS PLOT
-		plt.figure(2)
-		fig, ax = plt.subplots()
-		ax.set_ylim((min(stocks) - 5.0), (max(stocks) + 5.0))
-		ax.plot_date(dates, stocks, 'b-')
-		fig.autofmt_xdate()
-		xfmt = mdates.DateFormatter("%d/%m/%Y")
-		ax.xaxis.set_major_formatter(xfmt)
-		ax.set_title(companyName.capitalize() + ' - Stock Values')
-		plt.savefig('stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
-
-		diff = False
-		if diff:
-			# DIFF RATINGS PLOT
-			plt.figure(3)
-			fig, ax = plt.subplots()
-			ax.set_ylim((min(diffRatings) - 0.2), (max(diffRatings) + 0.2))
-			ax.plot_date(dates, diffRatings, 'g-')
-			fig.autofmt_xdate()
-			xfmt = mdates.DateFormatter("%d/%m/%Y")
-			ax.xaxis.set_major_formatter(xfmt)
-			ax.set_title(companyName.capitalize() + ' - Amazon Ratings Evolution (daily)')
-			plt.savefig('diff_ratings_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
-			# DIFF STOCKS PLOT
-			plt.figure(4)
-			fig, ax = plt.subplots()
-			ax.set_ylim((min(diffStocks) - 2), (max(diffStocks) + 2))
-			ax.plot_date(dates, diffStocks, 'b-')
-			fig.autofmt_xdate()
-			xfmt = mdates.DateFormatter("%d/%m/%Y")
-			ax.xaxis.set_major_formatter(xfmt)
-			ax.set_title(companyName.capitalize() + ' - Stock Value Evolution (daily)')
-			plt.savefig('diff_stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
-
+	"""# Generate CSV with output data
+				dates = [rat.date for rat in combine.select('date').collect()]
+				ratings = [float(rat.avgRating) for rat in combine.select('avgRating').collect()]
+				stocks = [float(stock.close) for stock in combine.select('close').collect()]
+				diffRatings = [(((j-i)*100.0)/i) for i, j in zip(ratings[:-1], ratings[1:])]
+				diffStocks = [(((j-i)*100.0)/i) for i, j in zip(stocks[:-1], stocks[1:])]
+			
+				rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
+				with open(companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
+				    writer = csv.writer(fileCSV)
+				    for row in rows:
+			        	writer.writerow(row)
+			
+				if(consts.saveGraph):
+					# RATINGS PLOT
+					plt.figure(1)
+					fig, ax = plt.subplots()
+					datesObj = [datetime.datetime.strptime(str(i.date),"%Y-%m-%d") for i in combine.select('date').collect()]
+					ax.set_ylim((min(ratings) - 0.4), 5.0)
+					dates = matplotlib.dates.date2num(datesObj)
+					ax.plot_date(dates, ratings, 'g-')
+					fig.autofmt_xdate()
+					xfmt = mdates.DateFormatter("%d/%m/%Y")
+					ax.xaxis.set_major_formatter(xfmt)
+					ax.set_title(companyName.capitalize() + ' - Amazon Ratings')
+					plt.savefig('ratings_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+					# STOCKS PLOT
+					plt.figure(2)
+					fig, ax = plt.subplots()
+					ax.set_ylim((min(stocks) - 5.0), (max(stocks) + 5.0))
+					ax.plot_date(dates, stocks, 'b-')
+					fig.autofmt_xdate()
+					xfmt = mdates.DateFormatter("%d/%m/%Y")
+					ax.xaxis.set_major_formatter(xfmt)
+					ax.set_title(companyName.capitalize() + ' - Stock Values')
+					plt.savefig('stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+			
+					diff = False
+					if diff:
+						# DIFF RATINGS PLOT
+						plt.figure(3)
+						fig, ax = plt.subplots()
+						ax.set_ylim((min(diffRatings) - 0.2), (max(diffRatings) + 0.2))
+						ax.plot_date(dates, diffRatings, 'g-')
+						fig.autofmt_xdate()
+						xfmt = mdates.DateFormatter("%d/%m/%Y")
+						ax.xaxis.set_major_formatter(xfmt)
+						ax.set_title(companyName.capitalize() + ' - Amazon Ratings Evolution (daily)')
+						plt.savefig('diff_ratings_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+						# DIFF STOCKS PLOT
+						plt.figure(4)
+						fig, ax = plt.subplots()
+						ax.set_ylim((min(diffStocks) - 2), (max(diffStocks) + 2))
+						ax.plot_date(dates, diffStocks, 'b-')
+						fig.autofmt_xdate()
+						xfmt = mdates.DateFormatter("%d/%m/%Y")
+						ax.xaxis.set_major_formatter(xfmt)
+						ax.set_title(companyName.capitalize() + ' - Stock Value Evolution (daily)')
+						plt.savefig('diff_stocks_' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.png')
+			"""
 
 def multipleCompanies(sqlc):
-	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearHp = operation.readStockValue(consts.hpStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearMicrosoft = operation.readStockValue(consts.microsoftStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearDell = operation.readStockValue(consts.dellStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearSony = operation.readStockValue(consts.sonyStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearSamsung = operation.readStockValue(consts.samsungStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearHp = operation.readStockValue(consts.hpStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearMicrosoft = operation.readStockValue(consts.microsoftStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearDell = operation.readStockValue(consts.dellStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearSony = operation.readStockValue(consts.sonyStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearSamsung = operation.readStockValue(consts.samsungStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
 	stockDataList = [stockDataYearApple, stockDataYearHp, stockDataYearMicrosoft, stockDataYearDell, stockDataYearSony, stockDataYearSamsung]
 	companyList = ['apple', 'hp', 'microsoft', 'dell', 'sony', 'samsung']
 
