@@ -203,11 +203,11 @@ def combine(sqlc):
 	diffRatings = [(((j-i)*100.0)/i) for i, j in zip(ratings[:-1], ratings[1:])]
 	diffStocks = [(((j-i)*100.0)/i) for i, j in zip(stocks[:-1], stocks[1:])]
 
-	rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
+	'''rows = zip(dates, ratings, stocks, diffRatings, diffStocks)
 	with open('file:///home/' + consts.user + '/' + companyName + '_' + str(consts.beginTime) + '_' + str(consts.endTime) + '.csv', 'w') as fileCSV:
 	    writer = csv.writer(fileCSV)
 	    for row in rows:
-        	writer.writerow(row)
+        	writer.writerow(row)'''
 
 def multipleCompanies(sqlc):
 	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, consts.beginTime, consts.endTime)
