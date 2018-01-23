@@ -9,7 +9,7 @@ Everytime a function is added, the index should be updated with the correct argu
 # PySpark
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, weekofyear
+from pyspark.sql.functions import col, avg, to_date, from_unixtime, udf, weekofyear, countDistinct
 import csv
 # Project
 import dataframeOperations as operation
@@ -134,6 +134,9 @@ def countRatings(sqlc):
 
 	print contagem
 
+
+
+
 """
 Get count of reveiws for a company's produtcs in Amazon.com
 
@@ -147,13 +150,25 @@ def countReviews(sqlc):
 	df2 = sqlc.read.json(consts.reviewsfilefarm)
 
 	"""Select Data"""
-	reviews = operation.selectReviewsText(df2, consts.company, ['asin', "overall", "unixReviewTime", "reviewText"], consts.beginTime, consts.endTime)
+	meta = operation.selectProducts(df, ["asin", "title", "price"], consts.company, 25)
+	reviews = operation.selectReviews(df2, ['asin', "unixReviewTime"], consts.beginTime, consts.endTime)
 
-	"""Count"""
-	contagem = operation.countApprox(reviews.rdd)
+	timeframe = consts.timeframe
 
-	print contagem
+	"""Join Reviews asin"""
+	reviews = reviews.join(meta, "asin") 
 
+	if timeframe == 'month':
+		res = reviews.agg(countDistinct(month(reviews.date))) \
+			.withColumnRenamed("month(date)", "date") \
+			.orderBy("date", ascending=True).show()
+	elif timeframe == 'week':
+		res = reviews.agg(countDistinct(weekofyear(reviews.date))) \
+			.withColumnRenamed("month(date)", "date") \
+			.orderBy("date", ascending=True).show()
+	else:
+		res = reviews.agg(countDistinct(date)) \
+			.orderBy("date", ascending=True).show()
 
 """
 Combine Stock Value for a company in stock market and
@@ -313,6 +328,7 @@ def multipleCompanies(sqlc):
 
 index = {
 	'getReviews':getReviews,
+	'count':countReviews,
 	'stock':getStock,
 	'ratingGroupAvg':getRatingGroupAvg,
 	'ratingAvg':getRatingAvg,
