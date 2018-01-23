@@ -11,35 +11,31 @@ filename = '/data/doina/UCSD-Amazon-Data/meta_Electronics.json.gz'
 reviewsfile = '/data/doina/UCSD-Amazon-Data/reviews_Electronics.json.gz'
 reviewsfilefarm = 'file:///home/s1997319/reviews_Electronics.json.gz'
 appleStockFile = "/aapl-apple-historicalStock.csv"
-hpStockFile = "/hpe-hp-historicalStock.csv"
-microsoftStockFile = "/msft-microsoft-historicalStock.csv"
-dellStockFile = "/dmvt-dell-historicalStock.csv"
-ciscoStockFile = "/cisco-historicalStock.csv"
+asusStockFile = "/akcpf-asus-historicalStock.csv"
+hpStockFile = "/hpq-hp-historicalStock.csv"
 intelStockFile = "/intc-intel-historicalStock.csv"
+microsoftStockFile = "/msft-microsoft-historicalStock.csv"
+lenovoStockFile = "/lnvgf-lenovo-historicalStock.csv"
 panasonicStockFile = "/panasonic-historicalStock.csv"
-sonyStockFile = "/sne-sony-historicalStock.csv"
 samsungStockFile = "/ssnlf-samsung-historicalStock.csv"
+sonyStockFile = "/sne-sony-historicalStock.csv"
 
 def setStockFile(company, user):
     path = 'file:///home/' + user
     if company == 'apple':
     	stockFile = path + appleStockFile
-    elif company == 'hp':
-    	stockFile = path + hpStockFile
-    elif company == 'microsoft':
-    	stockFile = path + microsoftStockFile
     elif company == 'samsung':
     	stockFile = path + samsungStockFile
     elif company == 'sony':
     	stockFile = path + sonyStockFile
-    elif company == 'dell':
-    	stockFile = path + dellStockFile
-    elif company == 'cisco':
-    	stockFile = path + ciscoStockFile
     elif company == 'intel':
     	stockFile = path + intelStockFile
-    elif company == 'panasonic':
-    	stockFile = path + panasonicStockFile
+    elif company == 'asus':
+    	stockFile = path + asusStockFile
+    elif company == 'lenovo':
+    	stockFile = path + asusStockFile
+    elif company == 'hp':
+    	stockFile = path + hpStockFile
     else:
     	stockFile = path + appleStockFile
     return stockFile
