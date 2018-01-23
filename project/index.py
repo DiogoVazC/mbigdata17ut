@@ -54,7 +54,7 @@ def getStock(sqlc):
 	companyName = consts.company
 	consts.stockFile = consts.setStockFile(companyName, consts.user)
 	#.option("mode", "DROPMALFORMED") \
-	stockData = operation.readStockValue(consts.stockFile, sqlc, consts.beginTime, consts.endTime)
+	stockData = operation.readStockValue(consts.stockFile, sqlc, ["date", "volume", "high", "low", "open", "close"], consts.beginTime, consts.endTime)
 
 	printR.printClusterRDD(stockData.rdd, consts.user, consts.folder)
 
@@ -176,7 +176,11 @@ def combine(sqlc):
 
 	"""Change Date Format from Y/M/d to Y-M-d"""
 	my_udf = udf(operation.formatDate)
-	stockDataYear = stockDataYear.withColumn("date", my_udf(stockDataYear.date))
+	stockData = stockDataYear.withColumn("date", my_udf(stockDataYear.date))
+	if consts.timeframe != 'day': 
+		stockData = operation.averageStock(stockData, consts.timeframe)
+		print 'stockData != day'
+		print stockData.take(3)
 
 	"""Read Meta and Reviews Files"""
 	df = sqlc.read.json(consts.filename)
@@ -189,7 +193,7 @@ def combine(sqlc):
 	rating = operation.averageRating(reviews, consts.timeframe)
 
 	"""Join ratings with stock"""
-	combine = rating.join(stockDataYear, "date")
+	combine = rating.join(stockData, "date")
 	combine = combine.orderBy("date", ascending=True)
 
 	"""combine.write.format("com.databricks.spark.csv").save("/user/" + consts.user + "/project/data/" + consts.folder, header="true")"""
@@ -210,12 +214,12 @@ def combine(sqlc):
         	writer.writerow(row)'''
 
 def multipleCompanies(sqlc):
-	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearHp = operation.readStockValue(consts.hpStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearMicrosoft = operation.readStockValue(consts.microsoftStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearDell = operation.readStockValue(consts.dellStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearSony = operation.readStockValue(consts.sonyStockFile, sqlc, consts.beginTime, consts.endTime)
-	stockDataYearSamsung = operation.readStockValue(consts.samsungStockFile, sqlc, consts.beginTime, consts.endTime)
+	stockDataYearApple = operation.readStockValue(consts.appleStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearHp = operation.readStockValue(consts.hpStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearMicrosoft = operation.readStockValue(consts.microsoftStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearDell = operation.readStockValue(consts.dellStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearSony = operation.readStockValue(consts.sonyStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
+	stockDataYearSamsung = operation.readStockValue(consts.samsungStockFile, sqlc, ["date", "close"], consts.beginTime, consts.endTime)
 	stockDataList = [stockDataYearApple, stockDataYearHp, stockDataYearMicrosoft, stockDataYearDell, stockDataYearSony, stockDataYearSamsung]
 	companyList = ['apple', 'hp', 'microsoft', 'dell', 'sony', 'samsung']
 

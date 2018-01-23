@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, avg, date_add, from_unixtime
+from pyspark.sql.functions import col, avg, date_add, from_unixtime, weekofyear, month
 import datetime
 
 def selectProducts(dataframe, col, title, price):
@@ -32,14 +32,38 @@ def selectStock(dataframe, col, beginTime, endTime):
 
 def averageRating(dataframe, timeframe):
 	if timeframe == 'month':
-		dataframe = dataframe.withColumn("date", dataframe['date'].substr(1,7))
-	elif timeframe == '10days':
-		dataframe = dataframe.withColumn("date", dataframe['date'].substr(1,9))
+		rating = dataframe.groupBy(month(dataframe.date)) \
+			.agg(avg(col("overall")).alias('avgRating')) \
+			.withColumnRenamed("month(date)", "date") \
+			.orderBy("date", ascending=True)
+		return rating
+	elif timeframe == 'week':
+		rating = dataframe.groupBy(weekofyear(dataframe.date)) \
+			.agg(avg(col("overall")).alias('avgRating')) \
+			.withColumnRenamed("weekofyear(date)", "date") \
+			.orderBy("date", ascending=True)
+		return rating
+	else:
+		rating = dataframe.groupBy(dataframe.date) \
+			.agg(avg(col("overall")).alias('avgRating')) \
+			.orderBy("date", ascending=True)
+		return rating
 
-	rating = dataframe.groupBy(dataframe.date) \
-		.agg(avg(col("overall")).alias('avgRating')) \
-		.orderBy("date", ascending=True)
-	return rating
+def averageStock(dataframe, timeframe):
+	if timeframe == 'month':
+		stock = dataframe.groupBy(month(dataframe.date)) \
+			.agg(avg(col("close")).alias('close')) \
+			.withColumnRenamed("month(date)", "date") \
+			.orderBy("date", ascending=True)
+		return stock
+	elif timeframe == 'week':
+		stock = dataframe.groupBy(weekofyear(dataframe.date)) \
+			.agg(avg(col("close")).alias('close')) \
+			.withColumnRenamed("weekofyear(date)", "date") \
+			.orderBy("date", ascending=True)
+		return stock
+	else:
+		return dataframe
 
 def averageRatingAlias(dataframe, timeframe, colName):
 	if timeframe == 'month':
@@ -59,7 +83,7 @@ def formatDate(date):
 	d = datetime.datetime.strptime(date, '%Y/%m/%d')
 	return datetime.date.strftime(d, "%Y-%m-%d")
 
-def readStockValue(filename, sqlc, beginTime, endTime):
+def readStockValue(filename, sqlc, col, beginTime, endTime):
 	stockData = sqlc.read.format('com.databricks.spark.csv') \
 	    .options(header='true') \
 	    .option("inferschema", 'true') \
@@ -70,5 +94,5 @@ def readStockValue(filename, sqlc, beginTime, endTime):
 	endTime = int(endTime)
 	a = datetime.datetime.fromtimestamp(beginTime).strftime('%Y/%m/%d')
 	b = datetime.datetime.fromtimestamp(endTime).strftime('%Y/%m/%d')
-	stockDataYear = selectStock(stockData, ["date", "close"], a, b)
+	stockDataYear = selectStock(stockData, col, a, b)
 	return stockDataYear
